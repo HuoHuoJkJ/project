@@ -24,7 +24,7 @@ int main(void)
      * 可以不用在prepare函数中判断sql语句是否正确，也就是不用关心prepare的返回值，我们会在执行(execute)函数中进行判断
      */
     stmt.prepare("create table girls(id        bigint(10),\
-                                     name      varchar(10),\
+                                     name      varchar(30),\
                                      weight    decimal(8,2),\
                                      btime     datetime,\
                                      memo      longtext,\
