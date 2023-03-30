@@ -23,13 +23,13 @@ int main(void)
 
     sqlstatement stmt(&conn);
     
-    // stmt.prepare(
-                // "delete from girls" 
-                // );
+    stmt.prepare(
+                "delete from girls" 
+                );
 
-    // if (stmt.execute() != 0)
-    // { printf("stmt.execute() failed.\n%s\n%s\n", stmt.m_sql, stmt.m_cda.message); return -1; }
-    // printf("delete table girls successed\n%d rows been deleted\n", stmt.m_cda.rpc);
+    if (stmt.execute() != 0)
+    { printf("stmt.execute() failed.\n%s\n%s\n", stmt.m_sql, stmt.m_cda.message); return -1; }
+    printf("delete table girls successed\n%d rows been deleted\n", stmt.m_cda.rpc);
 
     stmt.prepare(
                  "insert into girls(id,name,weight,btime) values(:1,:2,:3,str_to_date(:4,'%%Y-%%m-%%d %%H:%%i:%%s'))"
