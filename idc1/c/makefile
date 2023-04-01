@@ -1,13 +1,25 @@
 # 开发框架头文件路径
 PUBINCL = -I/project/public
 
-# 开发框架cpp文件名，这里之际包含进来，没有采用链接库，是为了方便调试。
+# 开发框架cpp文件名，这里直接包含进来，没有采用链接库，是为了方便调试。
 PUBCPP = /project/public/_public.cpp
 
-# 编译参数
-CFLAGS = -g
+# mysql头文件存放的目录。
+MYSQLINCL = -I/usr/include/mysql -I/project/public/db/mysql
 
-all:crtsurfdata1 crtsurfdata2 crtsurfdata3 crtsurfdata4 crtsurfdata5 crtsurfdata
+# mysql库文件存放的目录。
+MYSQLLIB = -L/usr/lib64/mysql/
+
+# 需要链接的mysql库。
+MYSQLLIBS = -lmysqlclient
+
+# 开发框架mysql的cpp文件，这里直接包含进来，没有采用链接库，是为了方便调试
+MYSQLCPP = /project/public/db/mysql/_mysql.cpp
+
+# 编译参数
+CFLAGS = -g -Wno-write-strings
+
+all:crtsurfdata1 crtsurfdata2 crtsurfdata3 crtsurfdata4 crtsurfdata5 crtsurfdata obtcodetodb
 
 crtsurfdata1:crtsurfdata1.cpp
 	g++ $(CFLAGS) -o crtsurfdata1 crtsurfdata1.cpp $(PUBINCL) $(PUBCPP) -lm -lc 
@@ -32,6 +44,10 @@ crtsurfdata5:crtsurfdata5.cpp
 crtsurfdata:crtsurfdata.cpp
 	g++ $(CFLAGS) -o crtsurfdata crtsurfdata.cpp $(PUBINCL) $(PUBCPP) -lm -lc 
 	cp crtsurfdata ../bin/.
+	
+obtcodetodb:obtcodetodb.cpp
+	g++ $(CFLAGS) -o obtcodetodb obtcodetodb.cpp $(MYSQLINCL) $(MYSQLLIB) $(MYSQLLIBS) $(MYSQLCPP)  $(PUBINCL) $(PUBCPP) -lm -lc 
+	cp obtcodetodb ../bin/.
 
 clean:
-	rm crtsurfdata1 crtsurfdata2 crtsurfdata3 crtsurfdata4 crtsurfdata5 crtsurfdata
+	rm crtsurfdata1 crtsurfdata2 crtsurfdata3 crtsurfdata4 crtsurfdata5 crtsurfdata obtcodetodb
