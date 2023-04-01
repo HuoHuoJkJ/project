@@ -19,6 +19,7 @@ vector<struct st_code> vstcode;     // 容器，用于存储全国站点参数�
 CLogFile    logfile;    // 日志文件类
 connection  conn;       // 数据库连接类
 CFile       File;       // 操作文件类
+CPActive    PActive;    // 进程心跳类
 
 // 程序帮助文档
 void _help(void);
@@ -34,11 +35,13 @@ int main(int argc, char *argv[])
     { _help(); return -1; }
 
     // 处理程序运行时的退出信号和IO
-    // CloseIOAndSignal(true); signal(SIGINT, EXIT); signal(SIGTERM, EXIT);
+    CloseIOAndSignal(true); signal(SIGINT, EXIT); signal(SIGTERM, EXIT);
 
     // 打开日志文件
     if (logfile.Open(argv[4], "a+") == false)
     { printf("打开日志文件失败\n"); return -1; }
+    
+    PActive.AddPInfo(10, "obtcodetodb");
 
     // 把全国站点参数文件加载到容器vstcode中
     if (LoadToVst(argv[1]) == false)
@@ -162,10 +165,11 @@ bool LoadToVst(const char *inifile)
         vstcode.push_back(stcode);
     }
     
-  for (int ii=0;ii<vstcode.size();ii++)
-    logfile.Write("provname=%s,obtid=%s,cityname=%s,lat=%s,lon=%s,height=%s\n",\
-                   vstcode[ii].provname,vstcode[ii].obtid,vstcode[ii].cityname,vstcode[ii].lat,\
-                   vstcode[ii].lon,vstcode[ii].height);
+//   for (int ii=0;ii<vstcode.size();ii++)
+    // logfile.Write("provname=%s,obtid=%s,cityname=%s,lat=%s,lon=%s,height=%s\n",\
+                //    vstcode[ii].provname,vstcode[ii].obtid,vstcode[ii].cityname,vstcode[ii].lat,\
+                //    vstcode[ii].lon,vstcode[ii].height);
+
     return true;
 }
 
@@ -173,6 +177,8 @@ bool LoadToVst(const char *inifile)
 void EXIT(int sig)
 {
     logfile.Write("接收到%d信号，进程即将退出\n", sig);
+    
+    conn.disconnect();
     
     exit(0);
 }

@@ -25,3 +25,6 @@
 
 # 清理原始的全国气象站点观测的分钟数据目录/tmp/idc/surfdata中的历史数据文件
 /project/tools1/bin/procctl 300 /project/tools1/bin/deletefiles /tmp/ftpputest "*" 0.04
+
+# 将站点参数文件内容入库，如果站点内容不在库中，则插入；如果站点内容以修改，则更新
+/project/tools1/bin/procctl 120 /project/idc1/bin/obtcodetodb /project/idc1/ini/stcode.ini "127.0.0.1,root,DYT.9525ing,TestDB,3306" utf8 /log/idc/obtcodetodb.log
