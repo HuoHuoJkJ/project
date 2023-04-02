@@ -209,7 +209,7 @@ bool CtrSurfFile(const char *outpath, const char *datafmt)
                 vsurfdata[ii].r/10.0, vsurfdata[ii].vis/10.0);
 
         if (strcmp(datafmt, "xml") == 0)
-            File.Fprintf("<obtid>%s</obtid><ddatetime>%s</ddatetime><t>%.1f</t><p>%.1f</p><u>%d</u><wd>%d</wd><wf>%.1f</wf><r>%.1f</r><vis>%.1f</vis>\n",\
+            File.Fprintf("<obtid>%s</obtid><ddatetime>%s</ddatetime><t>%.1f</t><p>%.1f</p><u>%d</u><wd>%d</wd><wf>%.1f</wf><r>%.1f</r><vis>%.1f</vis><endl/>\n",\
                 vsurfdata[ii].obtid, vsurfdata[ii].ddatetime,\
                 vsurfdata[ii].t/10.0, vsurfdata[ii].p/10.0, \
                 vsurfdata[ii].u, vsurfdata[ii].wd, vsurfdata[ii].wf/10.0,\

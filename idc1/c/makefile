@@ -19,7 +19,7 @@ MYSQLCPP = /project/public/db/mysql/_mysql.cpp
 # 编译参数
 CFLAGS = -g -Wno-write-strings
 
-all:crtsurfdata1 crtsurfdata2 crtsurfdata3 crtsurfdata4 crtsurfdata5 crtsurfdata obtcodetodb
+all:crtsurfdata1 crtsurfdata2 crtsurfdata3 crtsurfdata4 crtsurfdata5 crtsurfdata obtcodetodb obtmindtodb obtmindtodb2
 
 crtsurfdata1:crtsurfdata1.cpp
 	g++ $(CFLAGS) -o crtsurfdata1 crtsurfdata1.cpp $(PUBINCL) $(PUBCPP) -lm -lc 
@@ -49,5 +49,13 @@ obtcodetodb:obtcodetodb.cpp
 	g++ $(CFLAGS) -o obtcodetodb obtcodetodb.cpp $(MYSQLINCL) $(MYSQLLIB) $(MYSQLLIBS) $(MYSQLCPP)  $(PUBINCL) $(PUBCPP) -lm -lc 
 	cp obtcodetodb ../bin/.
 
+obtmindtodb:obtmindtodb.cpp
+	g++ $(CFLAGS) -o obtmindtodb obtmindtodb.cpp $(MYSQLINCL) $(MYSQLLIB) $(MYSQLLIBS) $(MYSQLCPP)  $(PUBINCL) $(PUBCPP) -lm -lc 
+	cp obtmindtodb ../bin/.
+
+obtmindtodb2:obtmindtodb2.cpp
+	g++ $(CFLAGS) -o obtmindtodb2 obtmindtodb2.cpp $(MYSQLINCL) $(MYSQLLIB) $(MYSQLLIBS) $(MYSQLCPP)  $(PUBINCL) $(PUBCPP) -lm -lc 
+	cp obtmindtodb2 ../bin/.
+
 clean:
-	rm crtsurfdata1 crtsurfdata2 crtsurfdata3 crtsurfdata4 crtsurfdata5 crtsurfdata obtcodetodb
+	rm crtsurfdata1 crtsurfdata2 crtsurfdata3 crtsurfdata4 crtsurfdata5 crtsurfdata obtcodetodb obtmindtodb obtmindtodb2
