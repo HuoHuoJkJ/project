@@ -19,7 +19,7 @@ MYSQLCPP = /project/public/db/mysql/_mysql.cpp
 # 编译参数
 CFLAGS = -g -Wno-write-strings
 
-all:crtsurfdata1 crtsurfdata2 crtsurfdata3 crtsurfdata4 crtsurfdata5 crtsurfdata obtcodetodb obtmindtodb obtmindtodb2
+all:crtsurfdata1 crtsurfdata2 crtsurfdata3 crtsurfdata4 crtsurfdata5 crtsurfdata obtcodetodb obtmindtodb
 
 crtsurfdata1:crtsurfdata1.cpp
 	g++ $(CFLAGS) -o crtsurfdata1 crtsurfdata1.cpp $(PUBINCL) $(PUBCPP) -lm -lc 
@@ -46,16 +46,12 @@ crtsurfdata:crtsurfdata.cpp
 	cp crtsurfdata ../bin/.
 	
 obtcodetodb:obtcodetodb.cpp
-	g++ $(CFLAGS) -o obtcodetodb obtcodetodb.cpp $(MYSQLINCL) $(MYSQLLIB) $(MYSQLLIBS) $(MYSQLCPP)  $(PUBINCL) $(PUBCPP) -lm -lc 
+	g++ $(CFLAGS) -o obtcodetodb obtcodetodb.cpp $(PUBINCL) $(PUBCPP) $(MYSQLINCL) $(MYSQLLIB) $(MYSQLLIBS) $(MYSQLCPP) -lm -lc 
 	cp obtcodetodb ../bin/.
 
-obtmindtodb:obtmindtodb.cpp
-	g++ $(CFLAGS) -o obtmindtodb obtmindtodb.cpp $(MYSQLINCL) $(MYSQLLIB) $(MYSQLLIBS) $(MYSQLCPP)  $(PUBINCL) $(PUBCPP) -lm -lc 
-	cp obtmindtodb ../bin/.
-
-obtmindtodb2:obtmindtodb2.cpp
-	g++ $(CFLAGS) -o obtmindtodb2 obtmindtodb2.cpp $(MYSQLINCL) $(MYSQLLIB) $(MYSQLLIBS) $(MYSQLCPP)  $(PUBINCL) $(PUBCPP) -lm -lc 
-	cp obtmindtodb2 ../bin/.
+obtmindtodb:obtmindtodb.cpp idcapp.h idcapp.cpp
+	g++ $(CFLAGS) -o obtmindtodb obtmindtodb.cpp $(PUBINCL) $(PUBCPP) $(MYSQLINCL) $(MYSQLLIB) $(MYSQLLIBS) $(MYSQLCPP) idcapp.cpp -lm -lc
+	cp obtmindtodb ../bin/
 
 clean:
-	rm crtsurfdata1 crtsurfdata2 crtsurfdata3 crtsurfdata4 crtsurfdata5 crtsurfdata obtcodetodb obtmindtodb obtmindtodb2
+	rm crtsurfdata1 crtsurfdata2 crtsurfdata3 crtsurfdata4 crtsurfdata5 crtsurfdata obtcodetodb obtmindtodb

@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
 
     // 获取目录下所有的站点观测数据文件，将其入库
     _obtmindtodb(argv[1], argv[2], argv[3]);
+    
 
     return 0;
 }
@@ -57,13 +58,11 @@ bool _obtmindtodb(const char *pathname, const char *connstr, const char *charase
     CZHOBTMIND   ZHOBTMIND(&conn, &logfile);
 
     // 打开目录
-    // if (Dir.OpenDir(pathname, "*.xml,*.csv") == false)
-    if (Dir.OpenDir(pathname, "*") == false)
+    if (Dir.OpenDir(pathname, "*.xml") == false)
     { logfile.Write("打开目录(%s)失败\n", pathname); return false; }
 
     char tmp[11];   // 用于暂存结构体中需要进行小数转换为整数的变量的值
     
-    int filelogo    = 0;    // 判断文件的类型 1-xml文件，2-csv文件，0-判断失败
     int totalcount  = 0;    // 文件的总记录数
     int insertcount = 0;    // 成功插入记录数
     CTimer Timer;           // 计时器，记录每个数据的处理耗时
@@ -76,10 +75,6 @@ bool _obtmindtodb(const char *pathname, const char *connstr, const char *charase
         // 打开文件
         if (File.Open(Dir.m_FullFileName, "r") == false)
         { logfile.Write("打开文件(%s)失败\n", Dir.m_FullFileName); return false; }
-        
-        if (MatchStr(Dir.m_FileName, "*.xml") == true) filelogo = 1;
-        else if (MatchStr(Dir.m_FileName, "*.csv") == true) filelogo = 2;
-        else filelogo = 0;
 
         // 判断是否已经连接。程序每十秒运行一次，如果每次运行都要连接一次数据库，开销是非常大的，因此做以下处理
         if (conn.m_state == 0)
@@ -94,35 +89,21 @@ bool _obtmindtodb(const char *pathname, const char *connstr, const char *charase
         while (true)
         {
             // 处理文件中的每一行
-            if (filelogo == 1)
-            {
-                if (File.FFGETS(strBuffer, sizeof(strBuffer) - 1, "<endl/>") == false) break;
-            }
-            else if (filelogo == 2)
-            {
-                if (File.Fgets(strBuffer, sizeof(strBuffer) - 1, true) == false) break;
-                if (strstr(strBuffer, "站点") != 0) continue;
-            }
-            else 
-            {
-                logfile.Write("文件(%s)----无法处理\n", Dir.m_FileName);
-                break;
-            }
+            if (File.FFGETS(strBuffer, sizeof(strBuffer) - 1, "<endl/>") == false) break;
 
             // 解析strBuffer中的xml字符串
-            ZHOBTMIND.SplitBuffer(strBuffer, filelogo);
+            ZHOBTMIND.SplitBuffer(strBuffer);
             totalcount++;
 
             // 把结构体中的数据插入表中
             if (ZHOBTMIND.InsertTable() == true) insertcount++;
         }
         // 删除文件、提交事物
-        File.CloseAndRemove();
+        // File.CloseAndRemove();
         conn.commit();
 
         // 总记录数，总插入数，插入一个文件耗时
-        if (filelogo != 0)
-            logfile.Write("文件(%s)----记录数：%d，插入数：%d，耗时：%lf\n", Dir.m_FileName, totalcount, insertcount, Timer.Elapsed());
+        logfile.Write("文件(%s)----记录数：%d，插入数：%d，耗时：%lf\n", Dir.m_FileName, totalcount, insertcount, Timer.Elapsed());
         insertcount = totalcount = 0;
     }
 

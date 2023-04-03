@@ -10,10 +10,10 @@
             "request": "launch",
             "program": "${fileDirname}/${fileBasenameNoExtension}",  
             "args": [
-                "/log/idc/ftpgetfiles_surfdata.log",
-                "\"<host>127.0.0.1:21</host><mode>1</mode><username>lighthouse</username><password>dyt.9525</password><localpath>/idcdata/surfdata</localpath><remotepath>/tmp/idc/surfdata</remotepath><matchname>SURF_ZH*.XML,SURF_ZH*.CSV</matchname><listfilename>/idcdata/ftplist/ftpgetfiles_surfdata.list</listfilename><ptype>1</ptype><remotepathbak>/tmp/idc/surfdatabak</remotepathbak><okfilename>/idcdata/ftplist/ftpgetfiles_surfdata.xml</okfilename><checktime>true</checktime><timeout>80</timeout><pname>ftpgetfiles_surfdata</pname>\""
-                // "~/ftpgetfiles2_surfdata.log",
-                // "\"<host>127.0.0.1:21</host><mode>1</mode><username>lighthouse</username><password>dyt.9525</password><localpath>~/client</localpath><remotepath>~/server</remotepath><matchname>SURF_ZH*.XML,SURF_ZH*.CSV</matchname><listfilename>/home/lighthouse/listfilename.list</listfilename>\""
+                "/idcdata/surfdata1",
+                "\"127.0.0.1,root,DYT.9525ing,TestDB,3306\"",
+                "utf8",
+                "/log/idc/obtmindtodb.log"
             ],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",

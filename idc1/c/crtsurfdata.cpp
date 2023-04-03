@@ -194,7 +194,7 @@ bool CtrSurfFile(const char *outpath, const char *datafmt)
     if (strcmp(datafmt, "csv") == 0)
         File.Fprintf("站点代码,数据,时间,气温,气压,相对湿度,风向,风速,降雨量,能见度\n");
     if (strcmp(datafmt, "xml") == 0)
-        File.Fprintf("<data>");
+        File.Fprintf("<data>\n");
     if (strcmp(datafmt, "json") == 0)
         File.Fprintf("{\n\"data\":[\n");
 
