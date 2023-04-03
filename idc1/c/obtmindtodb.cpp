@@ -117,7 +117,7 @@ bool _obtmindtodb(const char *pathname, const char *connstr, const char *charase
             if (ZHOBTMIND.InsertTable() == true) insertcount++;
         }
         // 删除文件、提交事物
-        File.CloseAndRemove();
+        // File.CloseAndRemove();
         conn.commit();
 
         // 总记录数，总插入数，插入一个文件耗时

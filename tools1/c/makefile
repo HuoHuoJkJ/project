@@ -4,10 +4,22 @@ PUBINCL = -I/project/public
 # 开发框架cpp文件名，这里直接包含进来，没有采用链接库，是为了方便调试。
 PUBCPP = /project/public/_public.cpp
 
+# mysql头文件存放的目录。
+MYSQLINCL = -I/usr/include/mysql -I/project/public/db/mysql
+
+# mysql库文件存放的目录。
+MYSQLLIB = -L/usr/lib64/mysql/
+
+# 需要链接的mysql库。
+MYSQLLIBS = -lmysqlclient
+
+# 开发框架mysql的cpp文件，这里直接包含进来，没有采用链接库，是为了方便调试
+MYSQLCPP = /project/public/db/mysql/_mysql.cpp
+
 # 编译参数
 CFLAGS = -g
 
-all: procctl checkproc gzipfiles deletefiles ftpgetfiles ftpputfiles tcpputfiles fileserver
+all: procctl checkproc gzipfiles deletefiles ftpgetfiles ftpputfiles tcpputfiles fileserver execsql
 
 procctl:procctl.cpp
 	g++ -o procctl procctl.cpp
@@ -33,10 +45,6 @@ ftpputfiles:ftpputfiles.cpp
 	g++ $(CFLAGS) -o ftpputfiles ftpputfiles.cpp $(PUBINCL) $(PUBCPP) /project/public/libftp.a /project/public/_ftp.cpp -lm -lc
 	cp ftpputfiles ../bin/.
 
-# ftpgetfiles5:ftpgetfiles5.cpp
-# 	g++ $(CFLAGS) -o ftpgetfiles5 ftpgetfiles5.cpp $(PUBINCL) $(PUBCPP) /project/public/libftp.a /project/public/_ftp.cpp -lm -lc
-# 	cp ftpgetfiles5 ../bin/.
-
 tcpputfiles:tcpputfiles.cpp
 	g++ $(CFLAGS) -o tcpputfiles tcpputfiles.cpp $(PUBINCL) $(PUBCPP) -lm -lc
 	cp tcpputfiles ../bin/.
@@ -45,5 +53,9 @@ fileserver:fileserver.cpp
 	g++ $(CFLAGS) -o fileserver fileserver.cpp $(PUBINCL) $(PUBCPP) -lm -lc
 	cp fileserver ../bin/.
 
+execsql:execsql.cpp
+	g++ $(CFLAGS) -o execsql execsql.cpp $(PUBINCL) $(PUBCPP) $(MYSQLINCL) $(MYSQLCPP) $(MYSQLLIB) $(MYSQLLIBS) -lm -lc
+	cp execsql ../bin/.
+
 clean:
-	rm -f procctl checkproc gzipfiles deletefiles ftpgetfiles ftpputfiles tcpputfiles fileserver
+	rm -f procctl checkproc gzipfiles deletefiles ftpgetfiles ftpputfiles tcpputfiles fileserver execsql
