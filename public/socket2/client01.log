@@ -1,0 +1,19 @@
+2023-04-07 16:26:50 发送心跳报文: <srvcode>0<srvcode><message>hahajiukanjian</message>
+2023-04-07 16:26:50 发送登录数据:<srvcode>1</srvcode><username>hahajiukanjian</username><password>dyt123</password>
+2023-04-07 16:26:50 接收登录数据:<retcode>0</retcode><message>hahajiukanjian</message>
+2023-04-07 16:26:50 登录成功
+2023-04-07 16:26:51 发送卡号信息:<srvcode>2</srvcode><cardid>1695259395</cardid>
+2023-04-07 16:26:51 接收余额信息:<retcode>0</retcode>
+2023-04-07 16:26:51 查询成功，余额：0.00
+
+
+
+
+2023-04-07 16:29:05 发送心跳报文: <srvcode>0<srvcode><message>hahajiukanjian</message>
+2023-04-07 16:29:05 接收心跳报文: <retcode>0</retcode><message>hahajiukanjian</message>
+2023-04-07 16:29:05 发送登录数据:<srvcode>1</srvcode><username>hahajiukanjian</username><password>dyt123</password>
+2023-04-07 16:29:05 接收登录数据:<retcode>0</retcode>
+2023-04-07 16:29:05 登录成功
+2023-04-07 16:29:06 发送卡号信息:<srvcode>2</srvcode><cardid>1695259395</cardid>
+2023-04-07 16:29:06 接收余额信息:<retcode>0</retcode><ye>100.10</ye>
+2023-04-07 16:29:06 查询成功，余额：100.10

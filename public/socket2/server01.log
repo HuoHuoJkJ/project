@@ -1,0 +1,18 @@
+2023-04-07 16:26:50 进程(10886)已连接客户端(127.0.0.1)
+2023-04-07 16:26:50 接收:<srvcode>0<srvcode><message>hahajiukanjian</message>
+2023-04-07 16:26:50 发送:<retcode>0</retcode><message>hahajiukanjian</message>
+2023-04-07 16:26:50 接收:<srvcode>1</srvcode><username>hahajiukanjian</username><password>dyt123</password>
+2023-04-07 16:26:50 发送:<retcode>0</retcode>
+2023-04-07 16:26:51 接收:<srvcode>2</srvcode><cardid>1695259395</cardid>
+2023-04-07 16:26:51 发送:<retcode>0</retcode><ye>100.10</ye>
+2023-04-07 16:28:51 父进程退出，sig=2
+
+
+
+2023-04-07 16:29:05 进程(11746)已连接客户端(127.0.0.1)
+2023-04-07 16:29:05 接收:<srvcode>0<srvcode><message>hahajiukanjian</message>
+2023-04-07 16:29:05 发送:<retcode>0</retcode><message>hahajiukanjian</message>
+2023-04-07 16:29:05 接收:<srvcode>1</srvcode><username>hahajiukanjian</username><password>dyt123</password>
+2023-04-07 16:29:05 发送:<retcode>0</retcode>
+2023-04-07 16:29:06 接收:<srvcode>2</srvcode><cardid>1695259395</cardid>
+2023-04-07 16:29:06 发送:<retcode>0</retcode><ye>100.10</ye>
