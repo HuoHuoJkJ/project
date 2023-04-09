@@ -1,4 +1,7 @@
 {
     "C_Cpp.errorSquiggles": "disabled",
-    "editor.cursorStyle": "line"
+    "editor.cursorStyle": "line",
+    "files.associations": {
+        "cstdio": "cpp"
+    }
 }
