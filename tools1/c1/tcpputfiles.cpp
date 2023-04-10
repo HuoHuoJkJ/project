@@ -159,12 +159,14 @@ bool _sendfilesmain()
     if (Dir.OpenDir(starg.clientpath, starg.matchname, 10000, starg.andchild) == false)
     { logfile.Write("打开目录(%s)失败\n"); return false; }
     // logfile.Write("%s, %s\n", starg.clientpath, starg.matchname);
-
+    
+    int delayed = 0;    // 未收到服务端确认报文的数量
+    int buflen  = 0;
+    
     // 遍历目录下的文件内容
     while (true)
     {
         memset(sendbuffer, 0, sizeof(sendbuffer));
-        memset(recvbuffer, 0, sizeof(recvbuffer));
         // 获取一个文件信息
         if (Dir.ReadDir() == false) break;
 
@@ -175,7 +177,7 @@ bool _sendfilesmain()
         if (TcpClient.Write(sendbuffer) == false)
         { logfile.Write("发送--文件信息：%s 失败\n"); return false; }
         // logfile.Write("发送--文件信息：%s\n", sendbuffer);
-        
+
         // 将文件内容发送到服务端
         logfile.Write("发送 %s(%d) ... ", Dir.m_FullFileName, Dir.m_FileSize);
         if (_sendfiles(TcpClient.m_connfd, Dir.m_FullFileName, Dir.m_FileSize) == false)
@@ -183,13 +185,27 @@ bool _sendfilesmain()
             logfile.WriteEx("失败\n");
             TcpClient.Close(); return false;
         }
-        logfile.WriteEx("成功\n");
+        else
+        {
+            logfile.WriteEx("成功\n"); delayed++;
+        }
 
         // 接收服务端的确认报文
-        if (TcpClient.Read(recvbuffer, 20) == false)
-        { logfile.Write("接收--信息回应：%s 失败\n"); return false; }
-        // logfile.Write("接收--信息回应：%s\n", recvbuffer);
-
+        while (delayed > 0)
+        {
+            memset(recvbuffer, 0, sizeof(recvbuffer));
+            if (TcpRead(TcpClient.m_connfd, recvbuffer, &buflen, -1) == false) break;
+            delayed--;
+            // logfile.Write("接收--信息回应：%s\n", recvbuffer);
+            // 删除或者转存文件
+            _removeorbak();
+        }
+    }
+    while (delayed > 0)
+    {
+        memset(recvbuffer, 0, sizeof(recvbuffer));
+        if (TcpRead(TcpClient.m_connfd, recvbuffer, &buflen, 10) == false) break;
+        delayed--;
         // 删除或者转存文件
         _removeorbak();
     }

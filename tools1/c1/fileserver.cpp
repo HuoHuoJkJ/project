@@ -56,12 +56,12 @@ int main(int argc, char *argv[])
         // 接收客户端accept
         if (TcpServer.Accept() == false) { logfile.Write("连接(accept)客户端失败\n"); _FathExit(-1); }
 
-        // fork() 父进程继续accept 子进程处理客户端的报文信息
-        if (fork() > 0) { TcpServer.CloseClient(); continue; }
+        // // fork() 父进程继续accept 子进程处理客户端的报文信息
+        // if (fork() > 0) { TcpServer.CloseClient(); continue; }
 
-        // 关闭子进程的listenfd  处理子进程的2和15信号
-        TcpServer.CloseListen();
-        signal(SIGINT, _ChldExit); signal(SIGTERM, _ChldExit);
+        // // 关闭子进程的listenfd  处理子进程的2和15信号
+        // TcpServer.CloseListen();
+        // signal(SIGINT, _ChldExit); signal(SIGTERM, _ChldExit);
 
         logfile.Write("进程(%d)已连接客户端(%s:%s)\n", getpid(), TcpServer.GetIP(), argv[2]);
 
@@ -138,11 +138,12 @@ bool _RecvFilesMain()
         memset(sendbuffer, 0, sizeof(sendbuffer));
         memset(recvbuffer, 0, sizeof(recvbuffer));
         if (TcpServer.Read(recvbuffer, starg.timetvl+10) == false) return false;
-        logfile.Write("接收----客户发送报文：%s\n", recvbuffer);
         
         if (strstr(recvbuffer, "<activetest>") != 0)
         {
+            logfile.Write("接收----客户发送报文：%s\n", recvbuffer);
             SPRINTF(sendbuffer, sizeof(sendbuffer), "success");
+            logfile.Write("发送----响应客户报文：%s\n", sendbuffer);
         }
 
         if (strstr(recvbuffer, "<filename>") != 0)
@@ -173,7 +174,6 @@ bool _RecvFilesMain()
         
         // 回应客户端
         if (TcpServer.Write(sendbuffer) == false) return false;
-        logfile.Write("发送----响应客户报文：%s\n", sendbuffer);
     }
 
     return true;
