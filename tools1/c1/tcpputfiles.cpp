@@ -83,6 +83,8 @@ void _help()
 {
     printf("Use:tcpputfiles logfile xmlbuffer\n");    
     printf("Example:/project/tools1/bin/tcpputfiles /log/tools/tcpputfiles1.log \"<ip>43.143.136.101</ip><port>5005</port><ptype>1</ptype><clientpath>/tmp/tcp/client</clientpath><serverpath>/tmp/tcp/server</serverpath><clientpathbak>/tmp/tcp/clientbak</clientpathbak><matchname>*.JSON,*.XML</matchname><andchild>true</andchild><timetvl>10</timetvl><timeout>50</timeout><pname>tcpputfiles</pname>\"\n");    
+    printf("        /project/tools1/bin/procctl 10 /project/tools1/bin/tcpputfiles /log/tools/tcpputfiles1.log \"<ip>43.143.136.101</ip><port>5005</port><ptype>1</ptype><clientpath>/tmp/tcp/client</clientpath><serverpath>/tmp/tcp/server</serverpath><clientpathbak>/tmp/tcp/clientbak</clientpathbak><matchname>*.JSON,*.XML</matchname><andchild>true</andchild><timetvl>10</timetvl><timeout>50</timeout><pname>tcpputfiles</pname>\"\n");    
+
 }
 
 bool _xmltoarg(const char *buffer)
@@ -150,10 +152,10 @@ bool _active()
 
     SPRINTF(sendbuffer, sizeof(sendbuffer), "<activetest>hahajiukanjian</activetest>");
     if (TcpClient.Write(sendbuffer) == false) return false;
-    logfile.Write("发送--心跳报文：%s\n", sendbuffer);
+    // logfile.Write("发送--心跳报文：%s\n", sendbuffer);
 
     if (TcpClient.Read(recvbuffer, 20) == false) return false;
-    logfile.Write("接收--回应报文：%s\n", recvbuffer);
+    // logfile.Write("接收--回应报文：%s\n", recvbuffer);
 
     return true;
 }

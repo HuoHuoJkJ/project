@@ -63,6 +63,7 @@ void _help()
 {
     printf("Use:tcpgetfiles logfile xmlbuffer\n");    
     printf("Example:/project/tools1/bin/tcpgetfiles /log/tools/tcpgetfiles.log \"<ip>10.0.8.4</ip><port>5005</port><ptype>1</ptype><clientpath>/tmp/tcp/client</clientpath><serverpath>/tmp/tcp/server</serverpath><serverpathbak>/tmp/tcp/serverbak</serverpathbak><matchname>*.JSON,*.XML</matchname><andchild>true</andchild><timetvl>10</timetvl><timeout>50</timeout><pname>tcpgetfiles</pname>\"\n");    
+    printf("        /project/tools1/bin/procctl 10 /project/tools1/bin/tcpgetfiles /log/tools/tcpgetfiles.log \"<ip>10.0.8.4</ip><port>5005</port><ptype>1</ptype><clientpath>/tmp/tcp/client</clientpath><serverpath>/tmp/tcp/server</serverpath><serverpathbak>/tmp/tcp/serverbak</serverpathbak><matchname>*.JSON,*.XML</matchname><andchild>true</andchild><timetvl>10</timetvl><timeout>50</timeout><pname>tcpgetfiles</pname>\"\n");    
 }
 
 bool _xmltoarg(const char *buffer)
@@ -131,13 +132,12 @@ bool _recvfilesmain()
         memset(sendbuffer, 0, sizeof(sendbuffer));
         PActive.UptATime();
         // 接收服务端发送的文件信息报文
-        if (TcpClient.Read(recvbuffer, starg.timetvl+10) == false)
-        { logfile.Write("接收----服务发送报文：%s 失败\n", recvbuffer); return false; }
+        if (TcpClient.Read(recvbuffer, starg.timetvl+10) == false) return false;
         // logfile.Write("接收----服务发送报文：%s\n", recvbuffer);
 
         if (strstr(recvbuffer, "<activetest>") != 0)
         {
-            logfile.Write("<activetest>success</activetest>\n");
+            // logfile.Write("<activetest>success</activetest>\n");
             SPRINTF(sendbuffer, sizeof(sendbuffer), "<activetest>success</activetest>");
         }
 

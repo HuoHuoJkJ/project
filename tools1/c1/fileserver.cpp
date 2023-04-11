@@ -50,7 +50,10 @@ void _ChldExit(int sig);
 int main(int argc, char *argv[])
 {
     // 帮助文档
-    if (argc != 3) { printf("/project/tools1/bin/fileserver /log/tools/fileserver1.log 5005\n"); return -1; }
+    if (argc != 3) 
+    {
+        printf("/project/tools1/bin/procctl 10 /project/tools1/bin/fileserver /log/tools/fileserver1.log 5005\n");
+        return -1; }
 
     // 关闭IO和信号
     CloseIOAndSignal(true); signal(SIGINT, _FathExit); signal(SIGTERM, _FathExit);
@@ -158,9 +161,9 @@ bool _RecvFilesMain()
         
         if (strstr(recvbuffer, "<activetest>") != 0)
         {
-            logfile.Write("接收----客户发送报文：%s\n", recvbuffer);
+            // logfile.Write("接收----客户发送报文：%s\n", recvbuffer);
             SPRINTF(sendbuffer, sizeof(sendbuffer), "success");
-            logfile.Write("发送----响应客户报文：%s\n", sendbuffer);
+            // logfile.Write("发送----响应客户报文：%s\n", sendbuffer);
         }
 
         if (strstr(recvbuffer, "<filename>") != 0)
@@ -264,10 +267,10 @@ bool _Active()
 
     SPRINTF(sendbuffer, sizeof(sendbuffer), "<activetest>hahajiukanjian</activetest>");
     if (TcpServer.Write(sendbuffer) == false) { logfile.Write("发送----心跳报文：%s 失败\n", sendbuffer); return false; }
-    logfile.Write("发送--心跳报文：%s\n", sendbuffer);
+    // logfile.Write("发送--心跳报文：%s\n", sendbuffer);
     
     if (TcpServer.Read(recvbuffer, 20) == false) { logfile.Write("接收----心跳回应：%s 失败\n", recvbuffer); return false; }
-    logfile.Write("接收--回应报文：%s\n", recvbuffer);
+    // logfile.Write("接收--回应报文：%s\n", recvbuffer);
 }
 
 bool _SendFilesMain()
