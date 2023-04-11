@@ -13,8 +13,8 @@ struct st_arg
     int  clienttype;
     char clientpath[301];
     char serverpath[301];
+    char serverpathbak[301];
     int  ptype;
-    char clientpathbak[301];
     bool andchild;
     char ip[21];
     int  port;
@@ -24,17 +24,26 @@ struct st_arg
     char pname[51];
 } starg;
 
-char recvbuffer[1024];
-char sendbuffer[1024];
-
 CLogFile    logfile;
 CTcpServer  TcpServer;
 CPActive    PActive;
 
+char recvbuffer[1024];
+char sendbuffer[1024];
+bool bcontinue = true;      // 如果调用的函数_sendfilemain上传了文件，bcontinue=true。
+
 bool _RecvXmlBuffer();
 bool _XmlToArg(const char *buffer);
+
 bool _RecvFilesMain();
 bool _RecvFiles(const int sockfd, const char *filename, const int filesize, const char *filetime);
+
+bool _SendMain();
+bool _Active();
+bool _SendFilesMain();
+bool _SendFiles(const int sockfd, const char *filename, const int filesize);
+bool _RemoveOrBack();
+
 void _FathExit(int sig);
 void _ChldExit(int sig);
 
@@ -70,15 +79,9 @@ int main(int argc, char *argv[])
         if (_RecvXmlBuffer() == false) _ChldExit(-1);
         
         // 确认客户端的请求模式，ptype=1 上传文件 ----- ptype=2 下载文件
-        if (starg.clienttype == 1)
-        {
-            if (_RecvFilesMain() == false) _ChldExit(-1);
-        }
+        if ((starg.clienttype == 1) &&(_RecvFilesMain() == false)) _ChldExit(-1);
 
-        else if (starg.clienttype == 2)
-        {
-            ;
-        }
+        else if ((starg.clienttype == 2) && (_SendMain() == false)) _ChldExit(-1);
 
         _ChldExit(0);
     }
@@ -114,18 +117,26 @@ bool _XmlToArg(const char *buffer)
     GetXMLBuffer(buffer, "clienttype", &starg.clienttype);
     if ( (starg.clienttype != 1) && (starg.clienttype != 2) )
     { logfile.Write("clienttype的值不正确, clienttype=%d\n", starg.clienttype); return false; }
+
     GetXMLBuffer(buffer, "ptype", &starg.ptype);
     GetXMLBuffer(buffer, "clientpath", starg.clientpath, 300);
     GetXMLBuffer(buffer, "serverpath", starg.serverpath, 300);
-    GetXMLBuffer(buffer, "clientpathbak", starg.clientpathbak, 300);
+
+    GetXMLBuffer(buffer, "serverpathbak", starg.serverpathbak, 300);
+    if ((starg.clienttype == 2) && (strlen(starg.serverpathbak) == 0))
+    { logfile.Write("serverpathbak的值为空\n"); return false; }
+
     GetXMLBuffer(buffer, "matchname", starg.matchname, 300);
     GetXMLBuffer(buffer, "andchild", &starg.andchild);
+
     GetXMLBuffer(buffer, "timetvl", &starg.timetvl);;
     if ((starg.timetvl < 0) && (starg.timetvl >= 30))
     { logfile.Write("timetvl的值不符合规范，已改为默认值30\n"); starg.timetvl = 30; }
+
     GetXMLBuffer(buffer, "timeout", &starg.timeout);;
     if ((starg.timeout < 50) && (starg.timeout >= 120))
     { logfile.Write("timetvl的值不符合规范，已改为默认值50\n"); starg.timetvl = 50; }
+
     GetXMLBuffer(buffer, "pname", starg.pname, 50);
     strcat(starg.pname, "_srv");
 
@@ -177,7 +188,7 @@ bool _RecvFilesMain()
             logfile.WriteEx("成功\n");
             SPRINTF(sendbuffer, sizeof(sendbuffer), "<filename>%s</filename><result>success</result>", clientfilename);
         }
-        
+
         // 回应客户端
         if (TcpServer.Write(sendbuffer) == false) return false;
     }
@@ -194,7 +205,6 @@ bool _RecvFiles(const int sockfd, const char *filename, const int filesize, cons
     char tmpfilename[301];
     // 创建临时文件名
     STRCPY(tmpfilename, sizeof(tmpfilename), filename);
-    UpdateStr(tmpfilename, starg.serverpath, starg.clientpathbak, false);
 
     // 以wb的形式打开临时文件
     if ((fp = FOPEN(tmpfilename, "wb")) == NULL) { logfile.Write("打开临时文件失败\n"); return false; }
@@ -223,6 +233,164 @@ bool _RecvFiles(const int sockfd, const char *filename, const int filesize, cons
 
     // 更名为正式文件
     if (RENAME(tmpfilename, filename) == false) { logfile.Write("重命名文件(%s--%s)失败\n", tmpfilename, filename); return false; }
+
+    return true;
+}
+
+bool _SendMain()
+{
+    PActive.AddPInfo(starg.timeout, starg.pname);
+    // 目录下随时可能会生成新的待发送文件，我们需要循环的对这些文件进行处理
+    while (true)
+    {
+        if (_SendFilesMain() == false) _ChldExit(-1);
+        
+        if (bcontinue == false)
+        {
+            sleep(starg.timetvl);
+
+            if (_Active() == false) _ChldExit(-1);
+        }
+        PActive.UptATime();
+    }
+
+    return false;
+}
+
+bool _Active()
+{
+    memset(sendbuffer, 0, sizeof(sendbuffer));
+    memset(recvbuffer, 0, sizeof(recvbuffer));
+
+    SPRINTF(sendbuffer, sizeof(sendbuffer), "<activetest>hahajiukanjian</activetest>");
+    if (TcpServer.Write(sendbuffer) == false) { logfile.Write("发送----心跳报文：%s 失败\n", sendbuffer); return false; }
+    logfile.Write("发送--心跳报文：%s\n", sendbuffer);
+    
+    if (TcpServer.Read(recvbuffer, 20) == false) { logfile.Write("接收----心跳回应：%s 失败\n", recvbuffer); return false; }
+    logfile.Write("接收--回应报文：%s\n", recvbuffer);
+}
+
+bool _SendFilesMain()
+{
+    CDir  Dir;
+    // 打开目录 将目录下的文件名写入容器中(目录类内部操作)
+    if (Dir.OpenDir(starg.serverpath, starg.matchname, 10000, starg.andchild) == false)
+    { logfile.Write("打开目录%s失败\n", starg.serverpath); return false; }
+
+    bcontinue = false;
+    int delayed = 0;    // 未收到服务端确认报文的数量
+    int buflen  = 0;
+    
+    // 当目录类中的容器中已经没有文件可读取时，跳出循环
+    while (true)
+    {
+        memset(sendbuffer, 0, sizeof(sendbuffer));
+
+        PActive.UptATime();
+
+        // 打开文件，获取信息
+        if (Dir.ReadDir() == false) break;
+        bcontinue = true;
+        
+        // 拼接发送报文
+        SPRINTF(sendbuffer, sizeof(sendbuffer), "<filename>%s</filename><ptime>%s</ptime><psize>%d</psize>", Dir.m_FullFileName, Dir.m_ModifyTime, Dir.m_FileSize);
+        
+        // 向客户端发送报文
+        if (TcpServer.Write(sendbuffer) == false) 
+        { logfile.Write("发送----文件信息：%s 失败\n", sendbuffer); return false; }
+        // logfile.Write("发送----文件信息：%s\n", sendbuffer);
+        
+        // 发送文件内容
+        logfile.Write("发送 %s ... ", Dir.m_FullFileName);
+        if (_SendFiles(TcpServer.m_connfd, Dir.m_FullFileName, Dir.m_FileSize) == false)
+        { logfile.WriteEx("失败\n"); TcpServer.CloseClient(); return false; }
+        else
+        {
+            logfile.WriteEx("成功\n");
+            delayed++;
+        }
+        
+        // // 接收客户端回应报文
+        // if (TcpServer.Read(recvbuffer, 10) == false)
+        // { logfile.Write("上传文件 %s 失败\n", Dir.m_FullFileName); return false; }
+        // _RemoveOrBack();
+
+        while (delayed > 0)
+        {
+            memset(recvbuffer, 0, sizeof(recvbuffer));
+            if (TcpRead(TcpServer.m_connfd, recvbuffer, &buflen, -1) == false) break;
+            // logfile.Write("接收----客户回应：%s\n", recvbuffer);
+            delayed--;
+            _RemoveOrBack();
+        }
+    }
+    while (delayed > 0)
+    {
+        memset(recvbuffer, 0, sizeof(recvbuffer));
+        if (TcpRead(TcpServer.m_connfd, recvbuffer, &buflen) == false) break;
+        delayed--;
+        _RemoveOrBack();
+    }
+
+    return false;
+}
+
+bool _SendFiles(const int sockfd, const char *filename, const int filesize)
+{
+    int  totalbytes = 0;
+    int  onread     = 0;
+    int  bytes      = 0;
+    FILE *fp        = NULL;
+    char buffer[1000];
+    // 打开文件
+    if ((fp=fopen(filename, "rb")) == NULL)
+    { logfile.Write("读取文件%s内容失败\n", filename); return false; }
+    
+    while (totalbytes < filesize)
+    {
+        memset(buffer, 0, sizeof(buffer));
+        // 计算本次读取字节数
+        if ((onread = filesize-totalbytes) < 1000);
+        else onread = 1000;
+        
+        // 读取文件内容
+        bytes = fread(buffer, 1, onread, fp);
+
+        // 发送文件内容
+        if (bytes > 0)
+            if (Writen(sockfd, buffer, bytes) == false) { fclose(fp); return false; }
+
+        // 计算总读取字节数
+        totalbytes = totalbytes + bytes;
+    }
+    // 关闭文件指针
+    fclose(fp);
+
+    return true;
+}
+
+bool _RemoveOrBack()
+{
+    // 解析客户端回应报文的结果
+    char filename[301]; memset(filename, 0, sizeof(filename));
+    char result[11];    memset(result, 0, sizeof(result));
+
+    GetXMLBuffer(recvbuffer, "filename", filename, 300);
+    GetXMLBuffer(recvbuffer, "result", result, 10);
+    
+    if (strcmp(result, "success") != 0) return false;
+ 
+    if (starg.ptype == 1)
+    {
+        if (REMOVE(filename) == false) { logfile.Write("删除文件%s失败\n", filename); return false; }
+    }
+    else if (starg.ptype == 2)
+    {
+        char filenamebak[301];  memset(filenamebak, 0, sizeof(filenamebak));
+        strcpy(filenamebak, filename);
+        UpdateStr(filenamebak, starg.serverpath, starg.serverpathbak, false);
+        if (RENAME(filename, filenamebak) == false) { logfile.Write("备份文件%s失败\n", filenamebak); return false; }
+    }
 
     return true;
 }

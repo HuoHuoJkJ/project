@@ -19,23 +19,19 @@ MYSQLCPP = /project/public/db/mysql/_mysql.cpp
 # 编译参数
 CFLAGS = -g
 
-all:tcpputfiles fileserver tcpputfiles1 fileserver1
+all:tcpputfiles fileserver tcpgetfiles
 
 tcpputfiles:tcpputfiles.cpp
 	g++ $(CFLAGS) -o tcpputfiles tcpputfiles.cpp $(PUBINCL) $(PUBCPP) -lm -lc
 	cp tcpputfiles ../bin/.
-	
-tcpputfiles1:tcpputfiles1.cpp
-	g++ $(CFLAGS) -o tcpputfiles1 tcpputfiles1.cpp $(PUBINCL) $(PUBCPP) -lm -lc
-	cp tcpputfiles1 ../bin/.
 
 fileserver:fileserver.cpp
 	g++ $(CFLAGS) -o fileserver fileserver.cpp $(PUBINCL) $(PUBCPP) -lm -lc
 	cp fileserver ../bin/.
-
-fileserver1:fileserver1.cpp
-	g++ $(CFLAGS) -o fileserver1 fileserver1.cpp $(PUBINCL) $(PUBCPP) -lm -lc
-	cp fileserver1 ../bin/.
+	
+tcpgetfiles:tcpgetfiles.cpp
+	g++ $(CFLAGS) -o tcpgetfiles tcpgetfiles.cpp $(PUBINCL) $(PUBCPP) -lm -lc
+	cp tcpgetfiles ../bin/.
 
 clean:
-	rm -f tcpputfiles fileserver tcpputfiles1 fileserver1
+	rm -f tcpputfiles fileserver tcpgetfiles
