@@ -28,7 +28,7 @@ CPActive    PActive;
 
 char sendbuffer[1024];
 char recvbuffer[1024];
-
+bool bcontinue = true;      // 如果调用的函数_sendfilemain上传了文件，bcontinue=true。
 
 void _help();
 bool _xmltoarg(const char *buffer);
@@ -49,9 +49,11 @@ int main(int argc, char *argv[])
 
     // 打开日志文件
     if (logfile.Open(argv[1], "a+") == false) { printf("打开日志文件(%s)失败\n", argv[1]); _exit(-1); }
-
+    
     // 解析xml字符串
     if (_xmltoarg(argv[2]) == false) { logfile.Write("解析xml字符串(%s)失败\n", argv[2]); _exit(-1); }
+
+    PActive.AddPInfo(starg.timeout, starg.pname);
 
     // 连接tcp服务器
     TcpClient.ConnectToServer(starg.ip, starg.port);
@@ -64,10 +66,14 @@ int main(int argc, char *argv[])
         // 发送文件信息和内容
         if (_sendfilesmain() == false) { logfile.Write("发送文件信息失败\n"); _exit(-1); }
       
-        sleep(starg.timetvl);
+        if (bcontinue == false)
+        {
+            sleep(starg.timetvl);
 
-        // 发送心跳报文
-        if (_active() == false) { logfile.Write("心跳报文发送失败\n"); _exit(-1); }
+            // 发送心跳报文
+            if (_active() == false) { logfile.Write("心跳报文发送失败\n"); _exit(-1); }
+        }
+        PActive.UptATime();
     }
 
     return 0;
@@ -162,6 +168,7 @@ bool _sendfilesmain()
     
     int delayed = 0;    // 未收到服务端确认报文的数量
     int buflen  = 0;
+    bcontinue = false;
     
     // 遍历目录下的文件内容
     while (true)
@@ -170,12 +177,14 @@ bool _sendfilesmain()
         // 获取一个文件信息
         if (Dir.ReadDir() == false) break;
 
+        bcontinue = true;
+
         // 将文件的信息组成报文
         SPRINTF(sendbuffer, sizeof(sendbuffer), "<filename>%s</filename><ptime>%s</ptime><psize>%d</psize>", Dir.m_FullFileName, Dir.m_ModifyTime, Dir.m_FileSize);
 
         // 将文件大小，时间，文件名发送到服务端
         if (TcpClient.Write(sendbuffer) == false)
-        { logfile.Write("发送--文件信息：%s 失败\n"); return false; }
+        { logfile.Write("发送--文件信息：%s 失败\n", sendbuffer); return false; }
         // logfile.Write("发送--文件信息：%s\n", sendbuffer);
 
         // 将文件内容发送到服务端
@@ -187,8 +196,14 @@ bool _sendfilesmain()
         }
         else
         {
-            logfile.WriteEx("成功\n"); delayed++;
+            logfile.WriteEx("成功\n");
+            delayed++;
         }
+        PActive.UptATime();
+        
+        // if (TcpClient.Read(recvbuffer) == false)
+        // { logfile.Write("接收--上传结果：%s 失败\n", recvbuffer); return false; }
+        // _removeorbak();
 
         // 接收服务端的确认报文
         while (delayed > 0)

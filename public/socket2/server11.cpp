@@ -32,9 +32,9 @@ int main(int argc, char *argv[])
         if ( TcpServer.Read(strrecvbuffer) == false ) break;
         logfile.Write("接受：%s\n", strrecvbuffer);
 
-        // SNPRINTF(strsendbuffer, sizeof(strsendbuffer), 1024, "ok");
-        // if ( TcpServer.Write(strsendbuffer) == false ) break;
-        // logfile.Write("发送：%s\n", strsendbuffer);
+        SNPRINTF(strsendbuffer, sizeof(strsendbuffer), 1024, "ok");
+        if ( TcpServer.Write(strsendbuffer) == false ) break;
+        logfile.Write("发送：%s\n", strsendbuffer);
     }
 
     return 0;

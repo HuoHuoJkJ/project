@@ -29,6 +29,7 @@ char sendbuffer[1024];
 
 CLogFile    logfile;
 CTcpServer  TcpServer;
+CPActive    PActive;
 
 bool _RecvXmlBuffer();
 bool _XmlToArg(const char *buffer);
@@ -56,18 +57,18 @@ int main(int argc, char *argv[])
         // 接收客户端accept
         if (TcpServer.Accept() == false) { logfile.Write("连接(accept)客户端失败\n"); _FathExit(-1); }
 
-        // // fork() 父进程继续accept 子进程处理客户端的报文信息
-        // if (fork() > 0) { TcpServer.CloseClient(); continue; }
+        // fork() 父进程继续accept 子进程处理客户端的报文信息
+        if (fork() > 0) { TcpServer.CloseClient(); continue; }
 
-        // // 关闭子进程的listenfd  处理子进程的2和15信号
-        // TcpServer.CloseListen();
-        // signal(SIGINT, _ChldExit); signal(SIGTERM, _ChldExit);
+        // 关闭子进程的listenfd  处理子进程的2和15信号
+        TcpServer.CloseListen();
+        signal(SIGINT, _ChldExit); signal(SIGTERM, _ChldExit);
 
         logfile.Write("进程(%d)已连接客户端(%s:%s)\n", getpid(), TcpServer.GetIP(), argv[2]);
 
         // 与客户端确认连接参数
         if (_RecvXmlBuffer() == false) _ChldExit(-1);
-
+        
         // 确认客户端的请求模式，ptype=1 上传文件 ----- ptype=2 下载文件
         if (starg.clienttype == 1)
         {
@@ -133,10 +134,15 @@ bool _XmlToArg(const char *buffer)
 
 bool _RecvFilesMain()
 {
+    PActive.AddPInfo(starg.timeout, starg.pname);
+
     while (true)
     {
         memset(sendbuffer, 0, sizeof(sendbuffer));
         memset(recvbuffer, 0, sizeof(recvbuffer));
+        
+        PActive.UptATime();
+        
         if (TcpServer.Read(recvbuffer, starg.timetvl+10) == false) return false;
         
         if (strstr(recvbuffer, "<activetest>") != 0)
