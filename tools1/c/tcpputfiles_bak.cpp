@@ -28,7 +28,7 @@ CPActive    PActive;
 
 char sendbuffer[1024];
 char recvbuffer[1024];
-bool bcontinue = true;      // 如果调用的函数_sendfilemain上传了文件，bcontinue=true。
+
 
 void _help();
 bool _xmltoarg(const char *buffer);
@@ -49,11 +49,9 @@ int main(int argc, char *argv[])
 
     // 打开日志文件
     if (logfile.Open(argv[1], "a+") == false) { printf("打开日志文件(%s)失败\n", argv[1]); _exit(-1); }
-    
+
     // 解析xml字符串
     if (_xmltoarg(argv[2]) == false) { logfile.Write("解析xml字符串(%s)失败\n", argv[2]); _exit(-1); }
-
-    PActive.AddPInfo(starg.timeout, starg.pname);
 
     // 连接tcp服务器
     TcpClient.ConnectToServer(starg.ip, starg.port);
@@ -66,14 +64,10 @@ int main(int argc, char *argv[])
         // 发送文件信息和内容
         if (_sendfilesmain() == false) { logfile.Write("发送文件信息失败\n"); _exit(-1); }
       
-        if (bcontinue == false)
-        {
-            sleep(starg.timetvl);
+        sleep(starg.timetvl);
 
-            // 发送心跳报文
-            if (_active() == false) { logfile.Write("心跳报文发送失败\n"); _exit(-1); }
-        }
-        PActive.UptATime();
+        // 发送心跳报文
+        if (_active() == false) { logfile.Write("心跳报文发送失败\n"); _exit(-1); }
     }
 
     return 0;
@@ -82,9 +76,7 @@ int main(int argc, char *argv[])
 void _help()
 {
     printf("Use:tcpputfiles logfile xmlbuffer\n");    
-    printf("Example:/project/tools1/bin/tcpputfiles /log/idc/tcpputfiles.log \"<ip>43.143.136.101</ip><port>5005</port><ptype>1</ptype><clientpath>/tmp/tcp/client</clientpath><serverpath>/tmp/tcp/server</serverpath><clientpathbak>/tmp/tcp/clientbak</clientpathbak><matchname>*.JSON,*.XML</matchname><andchild>true</andchild><timetvl>10</timetvl><timeout>50</timeout><pname>tcpputfiles</pname>\"\n");    
-    printf("        /project/tools1/bin/procctl 10 /project/tools1/bin/tcpputfiles /log/idc/tcpputfiles.log \"<ip>43.143.136.101</ip><port>5005</port><ptype>1</ptype><clientpath>/tmp/tcp/client</clientpath><serverpath>/tmp/tcp/server</serverpath><clientpathbak>/tmp/tcp/clientbak</clientpathbak><matchname>*.JSON,*.XML</matchname><andchild>true</andchild><timetvl>10</timetvl><timeout>50</timeout><pname>tcpputfiles</pname>\"\n");    
-
+    printf("Example:/project/tools1/bin/tcpputfiles /log/tools/tcpputfiles1.log \"<ip>43.143.136.101</ip><port>5005</port><ptype>1</ptype><clientpath>/tmp/tcp/client</clientpath><serverpath>/tmp/tcp/server</serverpath><clientpathbak>/tmp/tcp/clientbak</clientpathbak><matchname>*.JSON,*.XML</matchname><andchild>true</andchild><timetvl>10</timetvl><timeout>50</timeout><pname>tcpputfiles</pname>\"\n");    
 }
 
 bool _xmltoarg(const char *buffer)
@@ -135,10 +127,10 @@ bool _sendxml(const char *argv)
     
     SPRINTF(sendbuffer, sizeof(sendbuffer), "<clienttype>1</clienttype>%s", argv);
     if (TcpClient.Write(sendbuffer) == false) return false;
-    // logfile.Write("发送--确认参数：%s\n", sendbuffer);
+    logfile.Write("发送--确认参数：%s\n", sendbuffer);
 
     if (TcpClient.Read(recvbuffer, 20) == false) return false;
-    // logfile.Write("接收--回应参数：%s\n", recvbuffer);
+    logfile.Write("接收--回应参数：%s\n", recvbuffer);
 
     logfile.Write("信息--连接成功：%s:%d\n", starg.ip, starg.port);
 
@@ -152,10 +144,10 @@ bool _active()
 
     SPRINTF(sendbuffer, sizeof(sendbuffer), "<activetest>hahajiukanjian</activetest>");
     if (TcpClient.Write(sendbuffer) == false) return false;
-    // logfile.Write("发送--心跳报文：%s\n", sendbuffer);
+    logfile.Write("发送--心跳报文：%s\n", sendbuffer);
 
     if (TcpClient.Read(recvbuffer, 20) == false) return false;
-    // logfile.Write("接收--回应报文：%s\n", recvbuffer);
+    logfile.Write("接收--回应报文：%s\n", recvbuffer);
 
     return true;
 }
@@ -167,28 +159,23 @@ bool _sendfilesmain()
     if (Dir.OpenDir(starg.clientpath, starg.matchname, 10000, starg.andchild) == false)
     { logfile.Write("打开目录(%s)失败\n"); return false; }
     // logfile.Write("%s, %s\n", starg.clientpath, starg.matchname);
-    
-    int delayed = 0;    // 未收到服务端确认报文的数量
-    int buflen  = 0;
-    bcontinue = false;
-    
+
     // 遍历目录下的文件内容
     while (true)
     {
         memset(sendbuffer, 0, sizeof(sendbuffer));
+        memset(recvbuffer, 0, sizeof(recvbuffer));
         // 获取一个文件信息
         if (Dir.ReadDir() == false) break;
-
-        bcontinue = true;
 
         // 将文件的信息组成报文
         SPRINTF(sendbuffer, sizeof(sendbuffer), "<filename>%s</filename><ptime>%s</ptime><psize>%d</psize>", Dir.m_FullFileName, Dir.m_ModifyTime, Dir.m_FileSize);
 
         // 将文件大小，时间，文件名发送到服务端
         if (TcpClient.Write(sendbuffer) == false)
-        { logfile.Write("发送--文件信息：%s 失败\n", sendbuffer); return false; }
+        { logfile.Write("发送--文件信息：%s 失败\n"); return false; }
         // logfile.Write("发送--文件信息：%s\n", sendbuffer);
-
+        
         // 将文件内容发送到服务端
         logfile.Write("发送 %s(%d) ... ", Dir.m_FullFileName, Dir.m_FileSize);
         if (_sendfiles(TcpClient.m_connfd, Dir.m_FullFileName, Dir.m_FileSize) == false)
@@ -196,33 +183,13 @@ bool _sendfilesmain()
             logfile.WriteEx("失败\n");
             TcpClient.Close(); return false;
         }
-        else
-        {
-            logfile.WriteEx("成功\n");
-            delayed++;
-        }
-        PActive.UptATime();
-        
-        // if (TcpClient.Read(recvbuffer) == false)
-        // { logfile.Write("接收--上传结果：%s 失败\n", recvbuffer); return false; }
-        // _removeorbak();
+        logfile.WriteEx("成功\n");
 
         // 接收服务端的确认报文
-        while (delayed > 0)
-        {
-            memset(recvbuffer, 0, sizeof(recvbuffer));
-            if (TcpRead(TcpClient.m_connfd, recvbuffer, &buflen, -1) == false) break;
-            delayed--;
-            // logfile.Write("接收--信息回应：%s\n", recvbuffer);
-            // 删除或者转存文件
-            _removeorbak();
-        }
-    }
-    while (delayed > 0)
-    {
-        memset(recvbuffer, 0, sizeof(recvbuffer));
-        if (TcpRead(TcpClient.m_connfd, recvbuffer, &buflen, 10) == false) break;
-        delayed--;
+        if (TcpClient.Read(recvbuffer, 20) == false)
+        { logfile.Write("接收--信息回应：%s 失败\n"); return false; }
+        // logfile.Write("接收--信息回应：%s\n", recvbuffer);
+
         // 删除或者转存文件
         _removeorbak();
     }

@@ -27,13 +27,13 @@
 /project/tools1/bin/procctl 300 /project/tools1/bin/deletefiles /tmp/ftpputest "*" 0.04
 
 # 文件传输的服务端程序
-/project/tools1/bin/procctl 10 /project/tools1/bin/fileserver /log/tools/fileserver1.log 5005
+/project/tools1/bin/procctl 10 /project/tools1/bin/fileserver /log/idc/fileserver.log 5005
 
 # 把目录/tmp/ftpputest中的文件上传到/tmp/tcpputest目录中
-/project/tools1/bin/procctl 20 /project/tools1/bin/tcpputfiles /log/tools/tcpputfiles1.log "<ip>127.0.0.1</ip><port>5005</port><ptype>1</ptype><clientpath>/tmp/ftpputest</clientpath><serverpath>/tmp/tcpputest</serverpath><clientpathbak>/tmp/tcp/clientbak</clientpathbak><matchname>*.JSON</matchname><andchild>true</andchild><timetvl>10</timetvl><timeout>50</timeout><pname>tcpputfiles</pname>"
+/project/tools1/bin/procctl 20 /project/tools1/bin/tcpputfiles /log/idc/tcpputfiles.log "<ip>127.0.0.1</ip><port>5005</port><ptype>1</ptype><clientpath>/tmp/ftpputest</clientpath><serverpath>/tmp/tcpputest</serverpath><clientpathbak>/tmp/tcp/clientbak</clientpathbak><matchname>*.JSON</matchname><andchild>true</andchild><timetvl>10</timetvl><timeout>50</timeout><pname>tcpputfiles</pname>"
 
 # 把目录/tmp/tcpputest中的文件下载到/tmp/tcpgetest目录中
-/project/tools1/bin/procctl 20 /project/tools1/bin/tcpgetfiles /log/tools/tcpgetfiles.log "<ip>127.0.0.1</ip><port>5005</port><ptype>1</ptype><clientpath>/tmp/tcpgetest</clientpath><serverpath>/tmp/tcpputest</serverpath><serverpathbak>/tmp/tcp/serverbak</serverpathbak><matchname>*.JSON</matchname><andchild>true</andchild><timetvl>10</timetvl><timeout>50</timeout><pname>tcpgetfiles</pname>"
+/project/tools1/bin/procctl 20 /project/tools1/bin/tcpgetfiles /log/idc/tcpgetfiles.log "<ip>127.0.0.1</ip><port>5005</port><ptype>1</ptype><clientpath>/tmp/tcpgetest</clientpath><serverpath>/tmp/tcpputest</serverpath><serverpathbak>/tmp/tcp/serverbak</serverpathbak><matchname>*.JSON</matchname><andchild>true</andchild><timetvl>10</timetvl><timeout>50</timeout><pname>tcpgetfiles</pname>"
 
 # 清理采集的全国气象站点观测的分钟数据目录/tmp/tcpgtest中的历史数据文件
 /project/tools1/bin/procctl 300 /project/tools1/bin/deletefiles /tmp/tcpgetest "*" 0.04
@@ -45,4 +45,4 @@
 /project/tools1/bin/procctl 10 /project/idc1/bin/obtmindtodb /idcdata/surfdata "127.0.0.1,root,DYT.9525ing,TestDB,3306" utf8 /log/idc/obtmindtodb.log
 
 # 清理T_ZHOBTMIND表中120分之前的数据，防止磁盘空间被撑满
-/project/tools1/bin/procctl 120 /project/tools1/bin/execsql /project/idc1/sql/cleardata.sql "127.0.0.1,root,DYT.9525ing,TestDB,3306" utf8 /log/tools/execsql.log
+/project/tools1/bin/procctl 120 /project/tools1/bin/execsql /project/idc1/sql/cleardata.sql "127.0.0.1,root,DYT.9525ing,TestDB,3306" utf8 /log/idc/execsql.log
