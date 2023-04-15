@@ -23,13 +23,12 @@ struct st_arg
 
 #define MAXFIELDCOUNT   100     // 结果集字段的最大数
 // #define MAXFIELDLEN     500     // 结果集字段值的最大长度
-int     MAXFIELDLEN = -1;       // 结果集字段值的最大长度，可以在_XmlToArg函数中动态的调节大小
+int     MAXFIELDLEN = -1;       // 结果集字段值的最大长度，可以在_xmltoarg函数中动态的调节大小
 
 char strfieldname[MAXFIELDCOUNT][31];   // 结果集字段名数据，从starg.fieldstr解析得到
 int  ifieldlen[MAXFIELDCOUNT];          // 结果集字段的长度数组，从starg.fieldlen解析得到
 int  ifieldcount;                       // strfieldname和ifieldlen数组中有效字段的个数
 int  incfieldpos = -1;                  // 递增字段在结束集数组中的位置
-char xmlfilename[301];                  // xml文件名
 
 CLogFile        logfile;
 connection      conn;
@@ -37,10 +36,10 @@ sqlstatement    stmt;
 CPActive        PActive;
 
 void _help();
-bool _XmlToArg(char *strxmlbuffer);
-bool _InStarttime();
+bool _xmltoarg(char *strxmlbuffer);
+bool instarttime();
 bool _dminingmysql();
-void _CreatXMLName();
+bool _connmysql();
 void EXIT(int sig);
 
 int main(int argc, char *argv[])
@@ -58,11 +57,11 @@ int main(int argc, char *argv[])
     { printf("logfile.Open(%s) failed!\n", argv[1]); return -1; }
 
     // 解析xml字符串，获得参数
-    if ( _XmlToArg(argv[2]) == false )
+    if ( _xmltoarg(argv[2]) == false )
     { logfile.Write("解析xml失败！\n"); return -1; }
     
     // 判断当前时间是否在starttime所含时间上
-    if (_InStarttime() == false) return 0;
+    if (instarttime() == false) return 0;
 
     // 增加进程的心跳
     // PActive.AddPInfo(starg.timeout, starg.pname);
@@ -104,7 +103,7 @@ void _help()
     printf("  pname           进程名，建议采用\"dminingmysql_后缀\"的方式\n\n\n");
 }
 
-bool _XmlToArg(char *strxmlbuffer)
+bool _xmltoarg(char *strxmlbuffer)
 {
 
     memset(&starg, 0, sizeof(starg));
@@ -193,7 +192,7 @@ bool _XmlToArg(char *strxmlbuffer)
     return true;
 }
 
-bool _InStarttime()
+bool instarttime()
 {
     // 进程运行的时间区间，例如02、13，如果进程启动时，时间刚好为02或13时，则运行，其他时间不运行
     if (starg.starttime != 0)
@@ -210,7 +209,19 @@ bool _InStarttime()
     return true;
 }
 
+// 上传文件的功能函数
 bool _dminingmysql()
+{
+    // 连接数据库获取数据
+    if (_connmysql() == false)
+        return false;
+
+    // 生成xml文件
+
+    return true;
+}
+
+bool _connmysql()
 {
     // 连接数据库
     if (conn.connecttodb(starg.connstr, starg.charaset) != 0)
@@ -227,56 +238,19 @@ bool _dminingmysql()
     if (stmt.execute() != 0)
     { logfile.Write("stmt.execute() 失败\n%s\n%s\n", stmt.m_sql, stmt.m_cda.message); return false; }
 
-    CFile File;
-
     while (true)
     {
         memset(strfieldvalue, 0, sizeof(strfieldvalue));
         
         // 从结果集(缓冲区)中取出数据
         if (stmt.next() != 0) break;
-        
-        // 判断文件是否已经打开，在判断结果集是否为空下面打开文件，避免出现空文件的情况
-        if (File.IsOpened() == false)
-        {
-            // 拼接xml文件名
-            _CreatXMLName();
-            if (File.OpenForRename(xmlfilename, "w+") == false)
-            { logfile.Write("打开文件%s失败\n", xmlfilename); return false; }
-            File.Fprintf("<data>\n");
-        }
 
         for (int ii = 1; ii < ifieldcount; ii++)
-            File.Fprintf("<%s>%s</%s>", strfieldname[ii-1], strfieldvalue[ii-1], strfieldname[ii-1]);
-        File.Fprintf("</endl>\n");
-        
-        if (stmt.m_cda.rpc % 1000 == 0)
-        {
-            File.Fprintf("</data>");
-            if (File.CloseAndRename() == false)
-            { logfile.Write("\n"); return false; }
-            logfile.Write("生成文件%s(1000行)成功\n", xmlfilename);
-        }
-    }
-    if (File.IsOpened() == true)
-    {
-        File.Fprintf("</data>");
-        if (File.CloseAndRename() == false)
-        { logfile.Write("\n"); return false; }
-        logfile.Write("生成文件%s(%d行)成功\n", xmlfilename, stmt.m_cda.rpc%1000);
+            logfile.WriteEx("<%s>%s</%s>", strfieldname[ii-1], strfieldvalue[ii-1], strfieldname[ii-1]);
+        logfile.WriteEx("</endl>\n");
     }
 
     return true;
-}
-
-void _CreatXMLName()
-{
-    // xml文件名格式：starg.outpath + starg.bfilename + strlocaltime + starg.efilename
-    char strlocaltime[21];      memset(strlocaltime, 0, sizeof(strlocaltime));
-    LocalTime(strlocaltime, "yyyymmddhh24miss");
-    static int iseq = 1;    // 设置静态变量，防止同一秒内将本应分割的数据写入同一文件中
-    
-    SNPRINTF(xmlfilename, 300, sizeof(xmlfilename), "%s/%s_%s_%s_%d.xml", starg.outpath, starg.bfilename, strlocaltime, starg.efilename, iseq++);
 }
 
 void EXIT(int sig)
