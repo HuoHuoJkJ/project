@@ -18,8 +18,8 @@ MYSQLCPP = /project/public/db/mysql/_mysql.cpp
 
 # 编译参数
 CFLAGS = -g
-
-all: procctl checkproc gzipfiles deletefiles ftpgetfiles ftpputfiles tcpputfiles fileserver execsql dminingmysql
+# procctl 
+all: checkproc gzipfiles deletefiles ftpgetfiles ftpputfiles tcpputfiles fileserver execsql dminingmysql xmltodb
 
 procctl:procctl.cpp
 	g++ -o procctl procctl.cpp
@@ -61,5 +61,9 @@ dminingmysql:dminingmysql.cpp
 	g++ $(CFLAGS) -o dminingmysql dminingmysql.cpp $(PUBINCL) $(PUBCPP) $(MYSQLINCL) $(MYSQLCPP) $(MYSQLLIB) $(MYSQLLIBS) -lm -lc
 	cp dminingmysql ../bin/.
 
+xmltodb:xmltodb.cpp
+	g++ $(CFLAGS) -o xmltodb xmltodb.cpp $(PUBINCL) $(PUBCPP) $(MYSQLINCL) $(MYSQLCPP) $(MYSQLLIB) $(MYSQLLIBS) -lm -lc
+	cp xmltodb ../bin/.
+
 clean:
-	rm -f procctl checkproc gzipfiles deletefiles ftpgetfiles ftpputfiles tcpputfiles fileserver execsql dminingmysql
+	rm -f procctl checkproc gzipfiles deletefiles ftpgetfiles ftpputfiles tcpputfiles fileserver execsql dminingmysql xmltodb

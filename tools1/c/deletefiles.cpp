@@ -54,8 +54,6 @@ int main(int argc, char *argv[])
                 printf("%s 删除失败！\n", Dir.m_FullFileName);
         }
     }
-
-
 }
 
 void EXIT(int sig)
