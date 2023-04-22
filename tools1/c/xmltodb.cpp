@@ -59,6 +59,10 @@ struct st_xmltotable
 } stxmltotable;
 vector <struct st_xmltotable> vstxmltotable;
 
+char strinsertsql[10241];   // insert sql语句的暂存区
+char strupdatesql[10241];   // update sql语句的暂存区
+
+CTABCOLS        TABCOLS;
 CLogFile        logfile;
 connection      conn;
 sqlstatement    stmt;
@@ -70,6 +74,7 @@ bool _XmlToDB();
 bool _loadXmlToTable();
 bool _findXmlFromTable(const char *xmlfilename);
 int  _xmltodb(char *fullname, char *filename);
+void _crtSql();
 bool _mvXmlfileToBakErr(char *filename, char *srcpath, char *destpath);
 void EXIT(int sig);
 
@@ -198,9 +203,9 @@ bool _XmlToDB()
 
             // 处理xml内容
             // 调用文件处理子函数
+            logfile.Write("处理文件(%s)中 ... ", Dir.m_FullFileName);
             int iret = _xmltodb(Dir.m_FullFileName, Dir.m_FileName);
 
-            logfile.Write("处理文件(%s)中 ... ", Dir.m_FullFileName);
             // 如果处理xml文件成功，备份xml文件，写日志
             if (iret == 0)
             {
@@ -283,25 +288,25 @@ int  _xmltodb(char *fullname, char *filename)
     // 例如：从目录中读到了ZHOBTMIND_20230421203036_HYCZ_1.xml，而此时从xml配置文件加载到容器中的filename的内容是ZHOBTCODE_*.XML，这是正确的匹配
     if (_findXmlFromTable(filename) == false)
         return 1;
-    
-    CTABCOLS TABCOLS;
+
     // 从数据字典中读取 `读取待入库的表` 中的 字段名、字段长、字段类型等信息
     // 获取表的字段和主键信息，如果获取失败，应该是数据库的连接已失效
     // 在本程序运行的过程中，如果数据库出现异常，一定会在这里发生
     if (TABCOLS.allcols(&conn, stxmltotable.tname) == false) return 4;
     if (TABCOLS.pkcols(&conn, stxmltotable.tname)  == false) return 4;
-    
+
     // 如果TABCOLS.m_allcount == 0，说明待入库的表不存在，返回2
     if (TABCOLS.m_allcount == 0) return 2;
 
     // 拼接更新update 或者 插入insert 的sql语句
-    
+    _crtSql();
+
     // 准备更新update 或者 插入insert 的sql语句，绑定输入变量
-    
+
     // 在处理xml文件之前，如果vstxmltotable中的某个结构体中有execsql，则先执行它
-    
+
     // 打开xml文件
-    
+
     // while (true)
     // {
         // 读取xml文件内容
@@ -316,13 +321,60 @@ int  _xmltodb(char *fullname, char *filename)
     return 0;
 }
 
+void _crtSql()
+{
+    memset(strinsertsql, 0, sizeof(strinsertsql));
+    memset(strupdatesql, 0, sizeof(strupdatesql));
+
+    // 拼接insert的sql语句
+    char strinsertcount[3001];
+    char strinsertvalue[3001];
+
+    // insert into %s(%s) values(%s)
+    memset(strinsertcount, 0, sizeof(strinsertcount));
+    memset(strinsertvalue, 0, sizeof(strinsertvalue));
+
+    // 所有的字段名都存在 CTABCOLS.m_allcols中，但是我们不希望使用keyid 和 upttime这两个字段
+    // 使用容器中存储的字段名
+    int colseq = 1;
+    for (int ii = 0; ii < TABCOLS.m_vallcols.size(); ii++)
+    {
+        // 如果字段是keyid  upttime  就跳过它们
+        if (strcmp(TABCOLS.m_vallcols[ii].colname, "upttime") == 0 ||
+            strcmp(TABCOLS.m_vallcols[ii].colname, "keyid")   == 0 ) continue;
+
+        // 进行字段名的拼接
+        strcat(strinsertcount, TABCOLS.m_vallcols[ii].colname); strcat(strinsertcount, ",");
+
+        // 进行待绑定数字:1,:2...的拼接，注意区分keyid 和 upttime的导致ii++的问题，使用一个新的计数器colseq来解决
+        // 还有date字段的特殊: str_to_date( , )
+        char strtemp[51];
+        if (strcmp(TABCOLS.m_vallcols[ii].colname, "ddatetime") != 0)
+            SPRINTF(strtemp, sizeof(strtemp), ":%d", colseq);
+        else
+            SPRINTF(strtemp, sizeof(strtemp), "str_to_date(:%d,'%%%%Y%%%%m%%%%d%%%%H%%%%i%%%%s')", colseq);
+
+        strcat(strinsertvalue, strtemp); strcat(strinsertvalue, ",");
+        colseq++;
+    }
+
+    // 删除最后的逗号
+    strinsertcount[strlen(strinsertcount)-1] = 0;
+    strinsertvalue[strlen(strinsertvalue)-1] = 0;
+
+    // 拼接出完整的insert语句
+    SPRINTF(strinsertsql, sizeof(strinsertsql), "insert into %s(%s) values(%s)", stxmltotable.tname, strinsertcount, strinsertvalue);
+
+    logfile.Write("strinsertsql = %s\n", strinsertsql);
+}
+
 bool _mvXmlfileToBakErr(char *filename, char *srcpath, char *destpath)
 {
     char filenamebak[301];
     STRCPY(filenamebak, sizeof(filenamebak), filename);
-    
+
     UpdateStr(filenamebak, srcpath, destpath, false);
-    
+
     if (RENAME(filename, filenamebak) == false)
     { logfile.Write("RENAME 文件 %s 到 %s 失败\n", filename, filenamebak); return false; }
 
@@ -356,16 +408,16 @@ bool CTABCOLS::allcols(connection *conn, char *tablename)
      * select lower(column_name),lower(data_type),character_maximum_length from information_schema.COLUMNS 
      *  where table_name='T_ZHOBTMIND';
      * 可以查询表T_ZHOBTMIND的列名、列的数据类型、所有列的最大字符长度（对于字符类型列）
-     * 
+     *
      * 在查询时，我们设置规范：表名使用大写，列名使用小写
      * 因此在查询列名和列的数据类型时，我们使用了lower函数来将其转换为小写字母
      */
     m_allcount = 0;
     m_vallcols.clear();
     memset(m_allcols, 0, sizeof(m_allcols));
-    
+
     struct st_columns stcolumns;
-    
+
     sqlstatement stmt;
     stmt.connect(conn);
     // 准备sql查询、绑定输入输出变量
@@ -374,21 +426,21 @@ bool CTABCOLS::allcols(connection *conn, char *tablename)
     stmt.bindout(1,  stcolumns.colname, 30);
     stmt.bindout(2,  stcolumns.datatype, 30);
     stmt.bindout(3, &stcolumns.collen);
-    
+
     // 执行sql语句
     if (stmt.execute() != 0) return false;
-    
+
     while (true)
     {
         memset(&stcolumns, 0, sizeof(struct st_columns));
 
         // 查询结果集
         if (stmt.next() != 0) break;
-        
+
         // 处理列的数据类型。分为三大类number char date
         if (strcmp(stcolumns.datatype, "varchar") == 0)   strcpy(stcolumns.datatype, "char");
         if (strcmp(stcolumns.datatype, "char") == 0)      strcpy(stcolumns.datatype, "char");
-        
+
         if (strcmp(stcolumns.datatype, "datetime") == 0)  strcpy(stcolumns.datatype, "date");
         if (strcmp(stcolumns.datatype, "timestamp") == 0) strcpy(stcolumns.datatype, "date");
 
@@ -402,13 +454,13 @@ bool CTABCOLS::allcols(connection *conn, char *tablename)
         if (strcmp(stcolumns.datatype, "decimal") == 0)   strcpy(stcolumns.datatype, "number");
         if (strcmp(stcolumns.datatype, "float") == 0)     strcpy(stcolumns.datatype, "number");
         if (strcmp(stcolumns.datatype, "double") == 0)    strcpy(stcolumns.datatype, "number");
-        
+
         // 如果业务有需要，可以修改上面的代码。增加对更多数据类型的支持
         // 如果字段中的数据类型不在上面列出来的中，忽略它。即对数据类型处理过后，不符合三大数据类型标准的，不做处理
         if (strcmp(stcolumns.datatype, "number") != 0 &&
             strcmp(stcolumns.datatype, "char")   != 0 &&
             strcmp(stcolumns.datatype, "date")   != 0 ) continue;
-        
+
         // 设置字段的长度，number为20，date为19(yyyy-mm-dd hh:ii:ss)，char采用sql执行后的结果
         if (strcmp(stcolumns.datatype, "number") == 0) stcolumns.collen = 20;
         if (strcmp(stcolumns.datatype, "date") == 0)   stcolumns.collen = 19;
@@ -446,22 +498,22 @@ bool CTABCOLS::pkcols(connection *conn, char *tablename)
     stmt.bindin(1, tablename, 30);
     stmt.bindout(1,  stcolumns.colname, 30);
     stmt.bindout(2, &stcolumns.pkseq);
-    
+
     if (stmt.execute() != 0) return false;
-    
+
     while (true)
     {
         memset(&stcolumns, 0, sizeof(struct st_columns));
-        
+
         if (stmt.next() != 0) break;
-        
+
         strcat(m_pkcols, stcolumns.colname); strcat(m_pkcols, ",");
-        
+
         m_vpkcols.push_back(stcolumns);
-        
+
         m_pkcount++;
     }
-    
+
     if (m_pkcount > 0) m_pkcols[strlen(m_pkcols)-1] = 0;
 
     return true;
