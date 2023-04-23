@@ -62,14 +62,10 @@ vector <struct st_xmltotable> vstxmltotable;
 char strinsertsql[10241];   // insert sql语句的暂存区
 char strupdatesql[10241];   // update sql语句的暂存区
 
-#define MAXCOLCOUNT 300 	// 表的最大字段的数量
-#define MAXCOLLEN   100		// 字段的存入的最大值
-char strcolvalue[MAXCOLCOUNT][MAXCOLLEN+1];	// 待绑定的输入变量
-
 CTABCOLS        TABCOLS;
 CLogFile        logfile;
 connection      conn;
-sqlstatement    stmt, stmtins, stmtupt;
+sqlstatement    stmt;
 CPActive        PActive;
 
 void _help();
@@ -79,7 +75,6 @@ bool _loadXmlToTable();
 bool _findXmlFromTable(const char *xmlfilename);
 int  _xmltodb(char *fullname, char *filename);
 void _crtSql();
-void _prepareSql();
 bool _mvXmlfileToBakErr(char *filename, char *srcpath, char *destpath);
 void EXIT(int sig);
 
@@ -307,7 +302,6 @@ int  _xmltodb(char *fullname, char *filename)
 	_crtSql();
 
 	// 准备更新update 或者 插入insert 的sql语句，绑定输入变量
-	_prepareSql();
 
 	// 在处理xml文件之前，如果vstxmltotable中的某个结构体中有execsql，则先执行它
 
@@ -333,8 +327,6 @@ void _crtSql()
 	memset(strupdatesql, 0, sizeof(strupdatesql));
 
 	// 拼接insert的sql语句
-	// insert into T_ZHOBTCODE1(obtid,cityname,provname,lat,lon,height) values(:1,:2,:3,:4,:5,:6)
-	// insert into T_ZHOBTMIND1(obtid,ddatetime,t,p,u,wd,wf,r,vis,minttime) values(:1,str_to_date(:2,'%%Y%%m%%d%%H%%i%%s'),:3,:4,:5,:6,:7,:8,:9,str_to_date(:10,'%%Y%%m%%d%%H%%i%%s'))
 	char strinsertcount[3001];
 	char strinsertvalue[3001];
 
@@ -379,7 +371,6 @@ void _crtSql()
 	if (stxmltotable.uptbz != 1) return ;
 
 	// 拼接出update sql 语句
-	// update T_ZHOBTCODE1 set cityname=:1,provname=:2,lat=:3,lon=:4,height=:5,upttime=now() where 1=1 and obtid=:6
 	// update T_ZHOBTMIND1 set t=:1,p=:2,u=:3,wd=:4,wf=:5,r=:6,vis=:7,upttime=now(),mint=:8,minttime=str_to_date(:9,’%Y%m%d%H%i%s’) where obtid=:10 and ddatetime=str_to_date(:11,’%Y%m%d%H%i%s’)
 	// 这里 不能更新主键，where 后面跟着 主键 进行选择
 
@@ -441,70 +432,6 @@ void _crtSql()
 	}
 
 	// logfile.WriteEx("\nstrupdatesql = %s\n", strupdatesql);
-}
-
-void _prepareSql()
-{
-	// 绑定insert 语句的输入变量
-	// insert into T_ZHOBTCODE1(obtid,cityname,provname,lat,lon,height) values(:1,:2,:3,:4,:5,:6)
-	//
-	// insert into T_ZHOBTMIND1(obtid,ddatetime,t,p,u,wd,wf,r,vis,minttime)
-	// 		values(:1,str_to_date(:2,'%%Y%%m%%d%%H%%i%%s'),:3,:4,:5,:6,:7,:8,:9,str_to_date(:10,'%%Y%%m%%d%%H%%i%%s'))
-	stmtins.connect(&conn);
-	stmtins.prepare(strinsertsql);
-	// logfile.WriteEx("\n%s\n", strinsertsql);
-	int colseq = 1;
-	for (int ii = 0; ii < TABCOLS.m_vallcols.size(); ii++)
-	{
-		// 忽略对keyid upttime
-		if ((strcmp(TABCOLS.m_vallcols[ii].colname, "keyid")   == 0) ||
-		    (strcmp(TABCOLS.m_vallcols[ii].colname, "upttime") == 0) ) continue;
-
-		// 此处的ii可能并不连续，因为我们在上面忽略的对keyid upttime的处理
-		stmtins.bindin(colseq, strcolvalue[ii], TABCOLS.m_vallcols[ii].collen);
-		// logfile.WriteEx("bindin(%d, %s, %d)\n", colseq, TABCOLS.m_vallcols[ii].colname, TABCOLS.m_vallcols[ii].collen);
-		colseq++;
-	}
-
-	// 判断是否需要进行update
-	if (stxmltotable.uptbz != 1) return ;
-
-	// 绑定update 语句的输入变量
-	// update T_ZHOBTCODE1 set cityname=:1,provname=:2,lat=:3,lon=:4,height=:5,upttime=now() where 1=1 and obtid=:6
-	// update T_ZHOBTMIND1 set t=:1,p=:2,u=:3,wd=:4,wf=:5,r=:6,vis=:7,upttime=now(),mint=:8,minttime=str_to_date(:9,’%Y%m%d%H%i%s’)
-	// 		where obtid=:10 and ddatetime=str_to_date(:11,’%Y%m%d%H%i%s’)
-	stmtupt.connect(&conn);
-	stmtupt.prepare(strupdatesql);
-	// logfile.WriteEx("\n%s\n", strupdatesql);
-
-	// 在此处处理 set 到 where 之间的字段
-	colseq = 1;
-	for (int ii = 0; ii < TABCOLS.m_vallcols.size(); ii++)
-	{
-		// 忽略对keyid upttime的处理
-		if ((strcmp(TABCOLS.m_vallcols[ii].colname, "keyid")   == 0) ||
-		    (strcmp(TABCOLS.m_vallcols[ii].colname, "upttime") == 0) ) continue;
-
-		// 不在此处处理主键
-		if (TABCOLS.m_vallcols[ii].pkseq != 0) continue;
-
-		// 此处的ii可能并不连续，因为我们在上面忽略的对keyid upttime的处理
-		stmtupt.bindin(colseq, strcolvalue[ii], TABCOLS.m_vallcols[ii].collen);
-		// logfile.WriteEx("bindin(%d, %s, %d)\n", colseq, TABCOLS.m_vallcols[ii].colname,TABCOLS.m_vallcols[ii].collen);
-		colseq++;
-	}
-
-	// 在此处处理 where 之后的字段（主键）
-	for (int ii = 0; ii < TABCOLS.m_vallcols.size(); ii++)
-	{
-		// 不在此处处理主键
-		if (TABCOLS.m_vallcols[ii].pkseq == 0) continue;
-
-		// 此处的ii可能并不连续，因为我们在上面忽略的对keyid upttime的处理
-		stmtupt.bindin(colseq, strcolvalue[ii], TABCOLS.m_vallcols[ii].collen);
-		// logfile.WriteEx("bindin(%d, %s, %d)\n", colseq, TABCOLS.m_vallcols[ii].colname, TABCOLS.m_vallcols[ii].collen);
-		colseq++;
-	}
 }
 
 bool _mvXmlfileToBakErr(char *filename, char *srcpath, char *destpath)
