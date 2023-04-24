@@ -80,6 +80,7 @@ bool _findXmlFromTable(const char *xmlfilename);
 int  _xmltodb(char *fullname, char *filename);
 void _crtSql();
 void _prepareSql();
+bool _execSql();
 bool _mvXmlfileToBakErr(char *filename, char *srcpath, char *destpath);
 void EXIT(int sig);
 
@@ -232,6 +233,10 @@ bool _XmlToDB()
 			// 数据库错误，函数返回，程序退出
 			if (iret == 4)
 			{ logfile.Write("失败  数据库错误\n"); return false; }
+
+			// 在处理xml文件之前，execsql执行失败
+			if (iret == 6)
+			{ logfile.Write("失败  执行execsql语句失败\n"); return false; }
 		}
 		break;
 		sleep(starg.timetvl);
@@ -310,6 +315,7 @@ int  _xmltodb(char *fullname, char *filename)
 	_prepareSql();
 
 	// 在处理xml文件之前，如果vstxmltotable中的某个结构体中有execsql，则先执行它
+	if (_execSql() == false) return 6;
 
 	// 打开xml文件
 
@@ -505,6 +511,28 @@ void _prepareSql()
 		// logfile.WriteEx("bindin(%d, %s, %d)\n", colseq, TABCOLS.m_vallcols[ii].colname, TABCOLS.m_vallcols[ii].collen);
 		colseq++;
 	}
+}
+
+// 在处理xml文件之前，如果vstxmltotable中的某个结构体中有execsql，则先执行它
+bool _execSql()
+{
+	if (strlen(stxmltotable.execsql) == 0) return true;
+
+	sqlstatement stmt;
+	stmt.connect(&conn);
+	stmt.prepare(stxmltotable.execsql);
+
+	if (stmt.execute() != 0)
+	{ logfile.Write("stmt.execute() 失败 \n%s\n%s\n", stmt.m_sql, stmt.m_cda.message); return false }
+
+	/*
+	 * 这里即使成功了，也不能提交事务conn.commit(); 它的操作和将xml文件入库的操作需要放在同一个事务中提交
+	 * 假设execsql的语句是delete表中数据
+	 * 如果它执行成功了，但是后面将xml文件内容入库的操作失败了
+	 * 新的数据插入失败了，旧的数据却又被删除了，导致数据库表成了空表
+	 */
+
+	return true;
 }
 
 bool _mvXmlfileToBakErr(char *filename, char *srcpath, char *destpath)
