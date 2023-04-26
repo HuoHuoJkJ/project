@@ -58,13 +58,13 @@ int main(int argc, const char *argv[])
         printf("Example:/project/idc1/bin/crtsurfdata /project/idc1/ini/stcode.ini /tmp/idc/surfdata /log/idc/crtsurfdata.log xml,json,csv\n");
         printf("        /project/idc1/bin/crtsurfdata /project/idc1/ini/stcode.ini /tmp/idc/surfdata /log/idc/crtsurfdata.log xml,json,csv 20010911123000\n");
         printf("        /project/tools1/bin/procctl 60 /project/idc1/bin/crtsurfdata /project/idc1/ini/stcode.ini /tmp/idc/surfdata /log/idc/crtsurfdata.log xml,json,csv 20010911123000\n");
-        
+
         printf("inifile  全国气象站点参数文件名。\n");
         printf("outpath  全国气象站点数据文件存放的目录。\n");
         printf("logfile  本程序运行的日志文件名。\n");
         printf("datafmt  生成数据文件的格式，支持xml、json和csv三种格式，中间用半角逗号分隔。\n");
         printf("datetime 是一个可选参数，表示生成指定时间的数据和文件名\n\n");
-        
+
         return -1;
     }
 
@@ -80,7 +80,7 @@ int main(int argc, const char *argv[])
     }
 
     logfile.Write("crtsurfdata 开始运行\n");
-    
+
     PActive.AddPInfo(20, "crtsurfdata");
 
     // 把站点参数文件中的数据加载到vstcode容器中
@@ -120,7 +120,7 @@ bool LoadSTCode(const char *inifile)
 
     char strBuffer[301];
     struct st_stcode stcode;
-    
+
     while (true)
     {
         // 从站点参数文件中读取一行，如果已经读取完成，跳出循环。
@@ -144,7 +144,7 @@ bool LoadSTCode(const char *inifile)
         // 把站点参数结构体放入站点参数容器。
         vstcode.push_back(stcode);
     }
-    
+
     return true;
 }
 
@@ -160,7 +160,7 @@ void CrtSurfData()
     for (int ii = 0; ii < vstcode.size(); ii++)
     {
         memset(&stsurfdata, 0, sizeof(struct st_surfdata));
-        
+
         // 用随机数填充分钟观测数据的结构体
         strncpy(stsurfdata.obtid, vstcode[ii].obtid, 10);
         strncpy(stsurfdata.ddatetime, strddatetime, 14);
@@ -183,7 +183,7 @@ bool CtrSurfFile(const char *outpath, const char *datafmt)
     // 拼接生成数据的文件名，例如：/tmp/idc/surfdata/SURF_ZH_20230217092200_2254.csv
     char strFileName[301];
     sprintf(strFileName, "%s/SURF_ZH_%s_%d.%s", outpath, strddatetime, getpid(), datafmt);
-    
+
     // 打开文件
     if (File.OpenForRename(strFileName, "w") == false)
     {
@@ -228,7 +228,7 @@ bool CtrSurfFile(const char *outpath, const char *datafmt)
                 File.Fprintf("\n");
         }
     }
-    
+
     if (strcmp(datafmt, "xml") == 0)
         File.Fprintf("</data>");
     if (strcmp(datafmt, "json") == 0)
@@ -236,10 +236,10 @@ bool CtrSurfFile(const char *outpath, const char *datafmt)
 
     // 关闭文件
     File.CloseAndRename();
-    
+
     // 更改文件的时间属性
     UTime(strFileName, strddatetime);
-    
+
     logfile.Write("生成数据文件%s成功，数据时间%s，记录数%d。\n", strFileName, strddatetime, vsurfdata.size());
 
     return true;

@@ -1,6 +1,6 @@
 #include "_public.h"
 
-/* 
+/*
  * 登录确定连接信息
  * 发送文件信息
  * 发送文件内容
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 
     // 打开日志文件
     if (logfile.Open(argv[1], "a+") == false) { printf("打开日志文件(%s)失败\n", argv[1]); _exit(-1); }
-    
+
     // 解析xml字符串
     if (_xmltoarg(argv[2]) == false) { logfile.Write("解析xml字符串(%s)失败\n", argv[2]); _exit(-1); }
 
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
     {
         // 发送文件信息和内容
         if (_sendfilesmain() == false) { logfile.Write("发送文件信息失败\n"); _exit(-1); }
-      
+
         if (bcontinue == false)
         {
             sleep(starg.timetvl);
@@ -81,9 +81,9 @@ int main(int argc, char *argv[])
 
 void _help()
 {
-    printf("Use:tcpputfiles logfile xmlbuffer\n");    
-    printf("Example:/project/tools1/bin/tcpputfiles /log/idc/tcpputfiles.log \"<ip>43.143.136.101</ip><port>5005</port><ptype>1</ptype><clientpath>/tmp/tcp/client</clientpath><serverpath>/tmp/tcp/server</serverpath><clientpathbak>/tmp/tcp/clientbak</clientpathbak><matchname>*.JSON,*.XML</matchname><andchild>true</andchild><timetvl>10</timetvl><timeout>50</timeout><pname>tcpputfiles</pname>\"\n");    
-    printf("        /project/tools1/bin/procctl 10 /project/tools1/bin/tcpputfiles /log/idc/tcpputfiles.log \"<ip>43.143.136.101</ip><port>5005</port><ptype>1</ptype><clientpath>/tmp/tcp/client</clientpath><serverpath>/tmp/tcp/server</serverpath><clientpathbak>/tmp/tcp/clientbak</clientpathbak><matchname>*.JSON,*.XML</matchname><andchild>true</andchild><timetvl>10</timetvl><timeout>50</timeout><pname>tcpputfiles</pname>\"\n");    
+    printf("Use:tcpputfiles logfile xmlbuffer\n");
+    printf("Example:/project/tools1/bin/tcpputfiles /log/idc/tcpputfiles.log \"<ip>43.143.136.101</ip><port>5005</port><ptype>1</ptype><clientpath>/tmp/tcp/client</clientpath><serverpath>/tmp/tcp/server</serverpath><clientpathbak>/tmp/tcp/clientbak</clientpathbak><matchname>*.JSON,*.XML</matchname><andchild>true</andchild><timetvl>10</timetvl><timeout>50</timeout><pname>tcpputfiles</pname>\"\n");
+    printf("        /project/tools1/bin/procctl 10 /project/tools1/bin/tcpputfiles /log/idc/tcpputfiles.log \"<ip>43.143.136.101</ip><port>5005</port><ptype>1</ptype><clientpath>/tmp/tcp/client</clientpath><serverpath>/tmp/tcp/server</serverpath><clientpathbak>/tmp/tcp/clientbak</clientpathbak><matchname>*.JSON,*.XML</matchname><andchild>true</andchild><timetvl>10</timetvl><timeout>50</timeout><pname>tcpputfiles</pname>\"\n");
 
 }
 
@@ -132,7 +132,7 @@ bool _sendxml(const char *argv)
 {
     memset(sendbuffer, 0, sizeof(sendbuffer));
     memset(recvbuffer, 0, sizeof(recvbuffer));
-    
+
     SPRINTF(sendbuffer, sizeof(sendbuffer), "<clienttype>1</clienttype>%s", argv);
     if (TcpClient.Write(sendbuffer) == false) return false;
     // logfile.Write("发送--确认参数：%s\n", sendbuffer);
@@ -167,11 +167,11 @@ bool _sendfilesmain()
     if (Dir.OpenDir(starg.clientpath, starg.matchname, 10000, starg.andchild) == false)
     { logfile.Write("打开目录(%s)失败\n"); return false; }
     // logfile.Write("%s, %s\n", starg.clientpath, starg.matchname);
-    
+
     int delayed = 0;    // 未收到服务端确认报文的数量
     int buflen  = 0;
     bcontinue = false;
-    
+
     // 遍历目录下的文件内容
     while (true)
     {
@@ -202,7 +202,7 @@ bool _sendfilesmain()
             delayed++;
         }
         PActive.UptATime();
-        
+
         // if (TcpClient.Read(recvbuffer) == false)
         // { logfile.Write("接收--上传结果：%s 失败\n", recvbuffer); return false; }
         // _removeorbak();
@@ -270,9 +270,9 @@ bool _removeorbak()
 
     GetXMLBuffer(recvbuffer, "filename", filename, 300);
     GetXMLBuffer(recvbuffer, "result", result, 10);
-    
+
     if (strcmp(result, "success") != 0) return false;
- 
+
     if (starg.ptype == 1)
     {
         if (REMOVE(filename) == false) { logfile.Write("删除文件%s失败\n", filename); return false; }

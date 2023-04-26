@@ -1,4 +1,4 @@
-/* 
+/*
  * execsql.cpp      这是一个工具程序，用于执行一个sql脚本文件
  */
 #include "_public.h"
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     if (conn.connecttodb(argv[2], argv[3], 1) != 0)
     { logfile.Write("连接数据库错误\n%s\n%s\n", argv[2], conn.m_cda.message); return -1; }
     logfile.Write("连接数据库成功(%s)\n", argv[2]);
-    
+
     CFile File;
 
     // 打开sql文件
@@ -63,7 +63,7 @@ void _help(void)
 {
     printf("\nUse:execsql sqlfile connstr charaset logfile\n");
     printf("Example:/project/tools1/bin/procctl 120 /project/tools1/bin/execsql /project/idc1/sql/cleardata.sql \"127.0.0.1,root,DYT.9525ing,TestDB,3306\" utf8 /log/tools/execsql.log\n\n");
-    
+
     printf("这是一个工具程序，用于执行一个sql脚本文件\n");
     printf("sqlfile sql脚本文件名，每条sql语句可以多行书写，分号表示一条sql语句的结束，不支持注释\n");
     printf("connstr 数据库连接参数\n");

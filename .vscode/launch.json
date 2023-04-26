@@ -1,5 +1,5 @@
 {
-    // 使用 IntelliSense 了解相关属性。 
+    // 使用 IntelliSense 了解相关属性。
     // 悬停以查看现有属性的描述。
     // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
@@ -8,12 +8,10 @@
             "name": "g++ - Build and debug active file",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}/${fileBasenameNoExtension}",  
+            "program": "${fileDirname}/${fileBasenameNoExtension}",
             "args": [
-                "/idcdata/surfdata1",
-                "\"127.0.0.1,root,DYT.9525ing,TestDB,3306\"",
-                "utf8",
-                "/log/idc/obtmindtodb.log"
+                "/log/idc/xmltodb_vip1.log",
+                "\"<connstr>127.0.0.1,root,DYT.9525ing,TestDB,3306</connstr><charaset>utf8</charaset><inifilename>/project/tools/ini/xmltodb.xml</inifilename><xmlpath>/idcdata/xmltodb/vip1</xmlpath><xmlpathbak>/idcdata/xmltodb/vip1bak</xmlpathbak><xmlpatherr>/idcdata/xmltodb/vip1err</xmlpatherr><timetvl>5</timetvl><timeout>50</timeout><pname>xmltodb_vip1</pname>\""
             ],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",

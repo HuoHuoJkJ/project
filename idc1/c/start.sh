@@ -9,7 +9,7 @@
 /project/tools1/bin/procctl 300 /project/tools1/bin/gzipfiles /log/idc "*.log.20*" 0.04
 
 # 生成用于测试的全国气象站点观测的分钟数据到/tmp/idc/surfdata
-/project/tools1/bin/procctl 60 /project/idc1/bin/crtsurfdata /project/idc1/ini/stcode.ini /tmp/idc/surfdata /log/idc/crtsurfdata.log xml,json,csv
+/project/tools1/bin/procctl 60 /project/idc1/bin/crtsurfdata /project/idc/ini/stcode.ini /tmp/idc/surfdata /log/idc/crtsurfdata.log xml,json,csv
 
 # 清理原始的全国气象站点观测的分钟数据目录/tmp/idc/surfdata中的历史数据文件
 /project/tools1/bin/procctl 300 /project/tools1/bin/deletefiles /tmp/idc/surfdata "*" 0.04
@@ -39,7 +39,7 @@
 /project/tools1/bin/procctl 300 /project/tools1/bin/deletefiles /tmp/tcpgetest "*" 0.04
 
 # 将站点参数文件内容入库，如果站点内容不在库中，则插入；如果站点内容以修改，则更新
-/project/tools1/bin/procctl 120 /project/idc1/bin/obtcodetodb /project/idc1/ini/stcode.ini "127.0.0.1,root,DYT.9525ing,TestDB,3306" utf8 /log/idc/obtcodetodb.log
+/project/tools1/bin/procctl 120 /project/idc1/bin/obtcodetodb /project/idc/ini/stcode.ini "127.0.0.1,root,DYT.9525ing,TestDB,3306" utf8 /log/idc/obtcodetodb.log
 
 # 把全国站点分钟观测数据保存到数据库的T_ZHOBTMIND表中，数据只插入，不更新
 /project/tools1/bin/procctl 10 /project/idc1/bin/obtmindtodb /idcdata/surfdata "127.0.0.1,root,DYT.9525ing,TestDB,3306" utf8 /log/idc/obtmindtodb.log
@@ -55,3 +55,13 @@
 
 # 清理采集的全国气象站点观测的分钟数据目录 /idcdata/dmindata 中的历史数据文件
 /project/tools1/bin/procctl 300 /project/tools1/bin/deletefiles /idcdata/dmindata "*" 0.04
+
+# 将数据抽取进程dminingmysql抽取到/idcdata/dmindata的文件，上传到/idcdata/xmltodb/vip1当中，进行数据入库的操作
+/project/tools1/bin/procctl 20 /project/tools1/bin/tcpputfiles /log/idc/tcpputfiles_dmindata.log "<ip>127.0.0.1</ip><port>5005</port><ptype>1</ptype><clientpath>/idcdata/dmindata</clientpath><serverpath>/idcdata/xmltodb/vip1</serverpath><matchname>*.XML</matchname><andchild>true</andchild><timetvl>10</timetvl><timeout>50</timeout><pname>tcpputfiles_dmindata</pname>"
+
+# 启动将xml文件入库的程序，将/idcdata/xmltodb/vip1目录下的xml文件数据入库
+/project/tools1/bin/procctl 10 /project/tools1/bin/xmltodb /log/idc/xmltodb_vip1.log "<connstr>127.0.0.1,root,DYT.9525ing,TestDB,3306</connstr><charaset>utf8</charaset><inifilename>/project/tools/ini/xmltodb.xml</inifilename><xmlpath>/idcdata/xmltodb/vip1</xmlpath><xmlpathbak>/idcdata/xmltodb/vip1bak</xmlpathbak><xmlpatherr>/idcdata/xmltodb/vip1err</xmlpatherr><timetvl>5</timetvl><timeout>50</timeout><pname>xmltodb_vip1</pname>"
+
+# 清理/idcdata/xmltodb/vip1bak 和 /idcdata/xmltodb/vip1err目录下的文件
+/project/tools1/bin/procctl 300 /project/tools1/bin/deletefiles /idcdata/xmltodb/vip1bak "*" 0.04
+/project/tools1/bin/procctl 300 /project/tools1/bin/deletefiles /idcdata/xmltodb/vip1err "*" 0.04

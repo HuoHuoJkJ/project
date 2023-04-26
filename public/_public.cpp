@@ -3,7 +3,7 @@
 /*   作者：吴从周                                                                        */
 /*****************************************************************************************/
 
-#include "_public.h"  
+#include "_public.h"
 
 // 安全的strcpy函数。
 // dest：目标字符串，不需要初始化，在STRCPY函数中有初始化代码。
@@ -18,7 +18,7 @@ char *STRCPY(char* dest,const size_t destlen,const char* src)
   // memset(dest,0,sizeof(dest));   // 不能这么写，在64位系统中，sizeof(dest)永远是8。
   if (src==0) return dest;
 
-  if (strlen(src)>destlen-1) strncpy(dest,src,destlen-1); 
+  if (strlen(src)>destlen-1) strncpy(dest,src,destlen-1);
   else strcpy(dest,src);
 
   return dest;
@@ -38,7 +38,7 @@ char *STRNCPY(char* dest,const size_t destlen,const char* src,size_t n)
   // memset(dest,0,sizeof(dest));   // 不能这么写，在64位系统中，sizeof(dest)永远是8。
   if (src==0) return dest;
 
-  if (n>destlen-1) strncpy(dest,src,destlen-1); 
+  if (n>destlen-1) strncpy(dest,src,destlen-1);
   else strncpy(dest,src,n);
 
   return dest;
@@ -411,7 +411,7 @@ CFile::CFile()   // 类的构造函数
 }
 
 // 关闭文件指针
-void CFile::Close() 
+void CFile::Close()
 {
   if (m_fp==0) return;    // 判断空指针。
 
@@ -479,7 +479,7 @@ bool CFile::OpenForRename(const char *filename,const char *openmode,bool bEnBuff
 
   memset(m_filename,0,sizeof(m_filename));
   STRNCPY(m_filename,sizeof(m_filename),filename,300);
-  
+
   memset(m_filenametmp,0,sizeof(m_filenametmp));
   SNPRINTF(m_filenametmp,sizeof(m_filenametmp),300,"%s.tmp",m_filename);
 
@@ -774,7 +774,7 @@ bool CCmdStr::GetValue(const int inum,bool *value)
   strncpy(strTemp,m_vCmdStr[inum].c_str(),10);
 
   ToUpper(strTemp);  // 转换为大写来判断。
-  if (strcmp(strTemp,"TRUE")==0) (*value)=true; 
+  if (strcmp(strTemp,"TRUE")==0) (*value)=true;
 
   return true;
 }
@@ -948,7 +948,7 @@ void timetostr(const time_t ltime,char *stime,const char *fmt)
   strcpy(stime,"");
 
   struct tm sttm = *localtime ( &ltime );
-  // struct tm sttm; localtime_r(&ltime,&sttm); 
+  // struct tm sttm; localtime_r(&ltime,&sttm);
 
   sttm.tm_year=sttm.tm_year+1900;
   sttm.tm_mon++;
@@ -986,13 +986,13 @@ void timetostr(const time_t ltime,char *stime,const char *fmt)
 
   if (strcmp(fmt,"yyyy-mm-dd") == 0)
   {
-    snprintf(stime,11,"%04u-%02u-%02u",sttm.tm_year,sttm.tm_mon,sttm.tm_mday); 
+    snprintf(stime,11,"%04u-%02u-%02u",sttm.tm_year,sttm.tm_mon,sttm.tm_mday);
     return;
   }
 
   if (strcmp(fmt,"yyyy-mm") == 0)
   {
-    snprintf(stime,8,"%04u-%02u",sttm.tm_year,sttm.tm_mon); 
+    snprintf(stime,8,"%04u-%02u",sttm.tm_year,sttm.tm_mon);
     return;
   }
 
@@ -1021,31 +1021,31 @@ void timetostr(const time_t ltime,char *stime,const char *fmt)
 
   if (strcmp(fmt,"yyyymmdd") == 0)
   {
-    snprintf(stime,9,"%04u%02u%02u",sttm.tm_year,sttm.tm_mon,sttm.tm_mday); 
+    snprintf(stime,9,"%04u%02u%02u",sttm.tm_year,sttm.tm_mon,sttm.tm_mday);
     return;
   }
 
   if (strcmp(fmt,"hh24miss") == 0)
   {
-    snprintf(stime,7,"%02u%02u%02u",sttm.tm_hour,sttm.tm_min,sttm.tm_sec); 
+    snprintf(stime,7,"%02u%02u%02u",sttm.tm_hour,sttm.tm_min,sttm.tm_sec);
     return;
   }
 
   if (strcmp(fmt,"hh24mi") == 0)
   {
-    snprintf(stime,5,"%02u%02u",sttm.tm_hour,sttm.tm_min); 
+    snprintf(stime,5,"%02u%02u",sttm.tm_hour,sttm.tm_min);
     return;
   }
 
   if (strcmp(fmt,"hh24") == 0)
   {
-    snprintf(stime,3,"%02u",sttm.tm_hour); 
+    snprintf(stime,3,"%02u",sttm.tm_hour);
     return;
   }
 
   if (strcmp(fmt,"mi") == 0)
   {
-    snprintf(stime,3,"%02u",sttm.tm_min); 
+    snprintf(stime,3,"%02u",sttm.tm_min);
     return;
   }
 }
@@ -1210,7 +1210,7 @@ bool CLogFile::WriteEx(const char *fmt,...)
 
 CIniFile::CIniFile()
 {
-  
+
 }
 
 bool CIniFile::LoadFile(const char *filename)
@@ -1281,7 +1281,7 @@ void CloseIOAndSignal(bool bCloseIO)
   {
     if (bCloseIO==true) close(ii);
 
-    signal(ii,SIG_IGN); 
+    signal(ii,SIG_IGN);
   }
 }
 
@@ -1510,7 +1510,7 @@ bool CDir::_OpenDir(const char *in_DirName,const char *in_MatchStr,const unsigne
   {
     // 以"."打头的文件不处理
     if (st_fileinfo->d_name[0]=='.') continue;
-        
+
     SNPRINTF(strTempFileName,sizeof(strTempFileName),300,"%s//%s",in_DirName,st_fileinfo->d_name);
 
     UpdateStr(strTempFileName,"//","/");
@@ -1522,7 +1522,7 @@ bool CDir::_OpenDir(const char *in_DirName,const char *in_MatchStr,const unsigne
     {
       if (bAndChild == true)
       {
-        if (_OpenDir(strTempFileName,in_MatchStr,in_MaxCount,bAndChild) == false) 
+        if (_OpenDir(strTempFileName,in_MatchStr,in_MaxCount,bAndChild) == false)
         {
           closedir(dir); return false;
         }
@@ -1545,7 +1545,7 @@ bool CDir::_OpenDir(const char *in_DirName,const char *in_MatchStr,const unsigne
 }
 
 /*
-st_gid 
+st_gid
   Numeric identifier of group that owns file (UNIX-specific) This field will always be zero on NT systems. A redirected file is classified as an NT file.
 st_atime
   Time of last access of file.
@@ -1579,7 +1579,7 @@ bool CDir::ReadDir()
   int ivsize=m_vFileName.size();
 
   // 如果已读完，清空容器
-  if (m_pos >= ivsize) 
+  if (m_pos >= ivsize)
   {
     m_pos=0; m_vFileName.clear(); return false;
   }
@@ -1608,21 +1608,21 @@ bool CDir::ReadDir()
   if (strcmp(m_DateFMT,"yyyy-mm-dd hh24:mi:ss") == 0)
   {
     nowtimer = *localtime(&st_filestat.st_mtime);
-    // localtime_r(&st_filestat.st_mtime,&nowtimer); 
+    // localtime_r(&st_filestat.st_mtime,&nowtimer);
     nowtimer.tm_mon++;
     snprintf(m_ModifyTime,20,"%04u-%02u-%02u %02u:%02u:%02u",\
              nowtimer.tm_year+1900,nowtimer.tm_mon,nowtimer.tm_mday,\
              nowtimer.tm_hour,nowtimer.tm_min,nowtimer.tm_sec);
 
     nowtimer = *localtime(&st_filestat.st_ctime);
-    // localtime_r(&st_filestat.st_ctime,&nowtimer); 
+    // localtime_r(&st_filestat.st_ctime,&nowtimer);
     nowtimer.tm_mon++;
     snprintf(m_CreateTime,20,"%04u-%02u-%02u %02u:%02u:%02u",\
              nowtimer.tm_year+1900,nowtimer.tm_mon,nowtimer.tm_mday,\
              nowtimer.tm_hour,nowtimer.tm_min,nowtimer.tm_sec);
 
     nowtimer = *localtime(&st_filestat.st_atime);
-    // localtime_r(&st_filestat.st_atime,&nowtimer); 
+    // localtime_r(&st_filestat.st_atime,&nowtimer);
     nowtimer.tm_mon++;
     snprintf(m_AccessTime,20,"%04u-%02u-%02u %02u:%02u:%02u",\
              nowtimer.tm_year+1900,nowtimer.tm_mon,nowtimer.tm_mday,\
@@ -1632,21 +1632,21 @@ bool CDir::ReadDir()
   if (strcmp(m_DateFMT,"yyyymmddhh24miss") == 0)
   {
     nowtimer = *localtime(&st_filestat.st_mtime);
-    // localtime_r(&st_filestat.st_mtime,&nowtimer); 
+    // localtime_r(&st_filestat.st_mtime,&nowtimer);
     nowtimer.tm_mon++;
     snprintf(m_ModifyTime,20,"%04u%02u%02u%02u%02u%02u",\
              nowtimer.tm_year+1900,nowtimer.tm_mon,nowtimer.tm_mday,\
              nowtimer.tm_hour,nowtimer.tm_min,nowtimer.tm_sec);
 
     nowtimer = *localtime(&st_filestat.st_ctime);
-    // localtime_r(&st_filestat.st_ctime,&nowtimer); 
+    // localtime_r(&st_filestat.st_ctime,&nowtimer);
     nowtimer.tm_mon++;
     snprintf(m_CreateTime,20,"%04u%02u%02u%02u%02u%02u",\
              nowtimer.tm_year+1900,nowtimer.tm_mon,nowtimer.tm_mday,\
              nowtimer.tm_hour,nowtimer.tm_min,nowtimer.tm_sec);
 
     nowtimer = *localtime(&st_filestat.st_atime);
-    // localtime_r(&st_filestat.st_atime,&nowtimer); 
+    // localtime_r(&st_filestat.st_atime,&nowtimer);
     nowtimer.tm_mon++;
     snprintf(m_AccessTime,20,"%04u%02u%02u%02u%02u%02u",\
              nowtimer.tm_year+1900,nowtimer.tm_mon,nowtimer.tm_mday,\
@@ -1725,7 +1725,7 @@ bool CTcpClient::ConnectToServer(const char *ip,const int port)
 {
   // 如果已连接到服务端，则断开，这种处理方法没有特别的原因，不要纠结。
   if (m_connfd!=-1) { close(m_connfd); m_connfd=-1; }
- 
+
   // 忽略SIGPIPE信号，防止程序异常退出。
   // 如果send到一个disconnected socket上，内核就会发出SIGPIPE信号。这个信号
   // 的缺省处理方法是终止进程，大多数时候这都不是我们期望的。我们重新定义这
@@ -1771,7 +1771,7 @@ bool CTcpClient::Read(char *buffer,const int itimeout)
   {
     struct pollfd fds;
     fds.fd=m_connfd;
-    fds.events=POLLIN;  
+    fds.events=POLLIN;
     int iret;
     m_btimeout=false;
     if ( (iret=poll(&fds,1,itimeout*1000)) <= 0 )
@@ -1798,7 +1798,7 @@ bool CTcpClient::Write(const char *buffer,const int ibuflen)
 
 void CTcpClient::Close()
 {
-  if (m_connfd > 0) close(m_connfd); 
+  if (m_connfd > 0) close(m_connfd);
 
   m_connfd=-1;
   memset(m_ip,0,sizeof(m_ip));
@@ -1827,13 +1827,13 @@ bool CTcpServer::InitServer(const unsigned int port,const int backlog)
   if ( (m_listenfd = socket(AF_INET,SOCK_STREAM,0))<=0) return false;
 
   // 忽略SIGPIPE信号，防止程序异常退出。
-  signal(SIGPIPE,SIG_IGN);   
+  signal(SIGPIPE,SIG_IGN);
 
   // 打开SO_REUSEADDR选项，当服务端连接处于TIME_WAIT状态时可以再次启动服务器，
   // 否则bind()可能会不成功，报：Address already in use。
   //char opt = 1; unsigned int len = sizeof(opt);
   int opt = 1; unsigned int len = sizeof(opt);
-  setsockopt(m_listenfd,SOL_SOCKET,SO_REUSEADDR,&opt,len);    
+  setsockopt(m_listenfd,SOL_SOCKET,SO_REUSEADDR,&opt,len);
 
   memset(&m_servaddr,0,sizeof(m_servaddr));
   m_servaddr.sin_family = AF_INET;
@@ -1914,7 +1914,7 @@ void CTcpServer::CloseClient()
 {
   if (m_connfd > 0)
   {
-    close(m_connfd); m_connfd=-1; 
+    close(m_connfd); m_connfd=-1;
   }
 }
 
@@ -1986,7 +1986,7 @@ bool TcpWrite(const int sockfd,const char *buffer,const int ibuflen)
   memset(TBuffer,0,sizeof(TBuffer));  // 清区发送缓冲区。
   memcpy(TBuffer,&ilenn,4);           // 把报文长度拷贝到缓冲区。
   memcpy(TBuffer+4,buffer,ilen);      // 把报文内容拷贝到缓冲区。
-  
+
   // 发送缓冲区中的数据。
   if (Writen(sockfd,TBuffer,ilen+4) == false) return false;
 
@@ -2025,11 +2025,11 @@ bool Writen(const int sockfd,const char *buffer,const size_t n)
   int nLeft=n;  // 剩余需要写入的字节数。
   int idx=0;    // 已成功写入的字节数。
   int nwritten; // 每次调用send()函数写入的字节数。
-  
+
   while(nLeft > 0 )
-  {    
-    if ( (nwritten=send(sockfd,buffer+idx,nLeft,0)) <= 0) return false;      
-    
+  {
+    if ( (nwritten=send(sockfd,buffer+idx,nLeft,0)) <= 0) return false;
+
     nLeft=nLeft-nwritten;
     idx=idx+nwritten;
   }
@@ -2174,7 +2174,7 @@ bool CSEM::init(key_t key,unsigned short value,short sem_flg)
         }
         if ( (m_semid=semget(key,1,0666)) == -1)
         { perror("init 2 semget()"); return false; }
-    
+
         return true;
       }
 
@@ -2197,7 +2197,7 @@ bool CSEM::P(short sem_op)
   struct sembuf sem_b;
   sem_b.sem_num = 0;      // 信号量编号，0代表第一个信号量。
   sem_b.sem_op = sem_op;  // P操作的sem_op必须小于0。
-  sem_b.sem_flg = m_sem_flg;   
+  sem_b.sem_flg = m_sem_flg;
   if (semop(m_semid,&sem_b,1) == -1) { perror("p semop()"); return false; }
 
   return true;
@@ -2249,7 +2249,7 @@ bool CPActive::AddPInfo(const int timeout,const char *pname,CLogFile *logfile)
 
   if (m_sem.init(SEMKEYP) == false)  // 初始化信号量。
   {
-    if (logfile!=0) logfile->Write("创建/获取信号量(%x)失败。\n",SEMKEYP); 
+    if (logfile!=0) logfile->Write("创建/获取信号量(%x)失败。\n",SEMKEYP);
     else printf("创建/获取信号量(%x)失败。\n",SEMKEYP);
 
     return false;
@@ -2257,16 +2257,16 @@ bool CPActive::AddPInfo(const int timeout,const char *pname,CLogFile *logfile)
 
   // 创建/获取共享内存，键值为SHMKEYP，大小为MAXNUMP个st_procinfo结构体的大小。
   if ( (m_shmid = shmget((key_t)SHMKEYP, MAXNUMP*sizeof(struct st_procinfo), 0666|IPC_CREAT)) == -1)
-  { 
-    if (logfile!=0) logfile->Write("创建/获取共享内存(%x)失败。\n",SHMKEYP); 
+  {
+    if (logfile!=0) logfile->Write("创建/获取共享内存(%x)失败。\n",SHMKEYP);
     else printf("创建/获取共享内存(%x)失败。\n",SHMKEYP);
 
-    return false; 
+    return false;
   }
 
   // 将共享内存连接到当前进程的地址空间。
   m_shm=(struct st_procinfo *)shmat(m_shmid, 0, 0);
-  
+
   struct st_procinfo stprocinfo;    // 当前进程心跳信息的结构体。
   memset(&stprocinfo,0,sizeof(stprocinfo));
 
@@ -2295,18 +2295,18 @@ bool CPActive::AddPInfo(const int timeout,const char *pname,CLogFile *logfile)
       if ( (m_shm+ii)->pid==0 ) { m_pos=ii; break; }
   }
 
-  if (m_pos==-1) 
-  { 
+  if (m_pos==-1)
+  {
     if (logfile!=0) logfile->Write("共享内存空间已用完。\n");
     else printf("共享内存空间已用完。\n");
 
     m_sem.V();  // 解锁。
 
-    return false; 
+    return false;
   }
 
   // 把当前进程的心跳信息存入共享内存的进程组中。
-  memcpy(m_shm+m_pos,&stprocinfo,sizeof(struct st_procinfo)); 
+  memcpy(m_shm+m_pos,&stprocinfo,sizeof(struct st_procinfo));
 
   m_sem.V();   // 解锁。
 

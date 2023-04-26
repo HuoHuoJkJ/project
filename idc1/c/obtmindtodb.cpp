@@ -1,4 +1,4 @@
-/* 
+/*
  * obtmindtodb.cpp      本程序用于将站点测量的数据入库
  */
 #include "idcapp.h"
@@ -22,10 +22,10 @@ int main(int argc, char *argv[])
 
     // 关闭进行的IO和信号
     CloseIOAndSignal(true); signal(SIGINT, EXIT); signal(SIGTERM, EXIT); // 调试进程阶段暂时不启用
-    
+
     // 打开程序的日志文件
     if (logfile.Open(argv[4], "a+") == false) { printf("打开日志文件失败\n"); return -1; }
-    
+
     // 进程心跳
     PActive.AddPInfo(20, "obtmindtodb");
 
@@ -62,7 +62,7 @@ bool _obtmindtodb(const char *pathname, const char *connstr, const char *charase
     { logfile.Write("打开目录(%s)失败\n", pathname); return false; }
 
     char tmp[11];   // 用于暂存结构体中需要进行小数转换为整数的变量的值
-    
+
     int filelogo    = 0;    // 判断文件的类型 1-xml文件，2-csv文件，0-判断失败
     int totalcount  = 0;    // 文件的总记录数
     int insertcount = 0;    // 成功插入记录数
@@ -76,7 +76,7 @@ bool _obtmindtodb(const char *pathname, const char *connstr, const char *charase
         // 打开文件
         if (File.Open(Dir.m_FullFileName, "r") == false)
         { logfile.Write("打开文件(%s)失败\n", Dir.m_FullFileName); return false; }
-        
+
         if (MatchStr(Dir.m_FileName, "*.xml") == true) filelogo = 1;
         else if (MatchStr(Dir.m_FileName, "*.csv") == true) filelogo = 2;
         else filelogo = 0;
@@ -103,7 +103,7 @@ bool _obtmindtodb(const char *pathname, const char *connstr, const char *charase
                 if (File.Fgets(strBuffer, sizeof(strBuffer) - 1, true) == false) break;
                 if (strstr(strBuffer, "站点") != 0) continue;
             }
-            else 
+            else
             {
                 logfile.Write("文件(%s)----无法处理\n", Dir.m_FileName);
                 break;
@@ -133,7 +133,7 @@ bool _obtmindtodb(const char *pathname, const char *connstr, const char *charase
 void EXIT(int sig)
 {
     printf("进程(%d)退出，sig=%d", getpid(), sig);
-    
+
     conn.disconnect();
 
     exit(0);

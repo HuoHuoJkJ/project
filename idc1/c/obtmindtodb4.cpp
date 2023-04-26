@@ -1,4 +1,4 @@
-/* 
+/*
  * obtmindtodb.cpp      本程序用于将站点测量的数据入库
  */
 #include "_public.h"
@@ -23,17 +23,17 @@ class CZHOBTMIND
 public:
     connection  *m_conn;    // 数据库连接
     CLogFile    *m_logfile; // 日志
-    
+
     sqlstatement m_stmt;    // 插入表操作的sql
-    
+
     char m_buffer[1024];    // 从文件中读到的一行
     struct st_zhobtmind m_zhobtmind; // 全国站点分钟观测数据结构
-    
+
     CZHOBTMIND();
     CZHOBTMIND(connection *conn, CLogFile *logfile);
-    
+
    ~CZHOBTMIND();
-   
+
    void BindConnLog(connection *conn, CLogFile *logfile); // 把connection和CLogFile传进去，用构造函数传也可以
    bool SplitBuffer(char *strline);                       // 把从文件读到的一行数据拆分到m_zhobtmind结构体中
    bool InsertTable();                                    // 把m_zhobtmind结构体中的数据插入到T_ZHOBTMIND表中
@@ -53,7 +53,7 @@ CZHOBTMIND::~CZHOBTMIND()
 {}
 
 // 把connection和CLogFile传进去，用构造函数传也可以
-void CZHOBTMIND::BindConnLog(connection *conn, CLogFile *logfile) 
+void CZHOBTMIND::BindConnLog(connection *conn, CLogFile *logfile)
 {
     m_conn = conn; m_logfile = logfile;
 }
@@ -125,11 +125,11 @@ int main(int argc, char *argv[])
 
     // 关闭进行的IO和信号
     // CloseIOAndSignal(true); signal(SIGINT, EXIT); signal(SIGTERM, EXIT); // 调试进程阶段暂时不启用
-    
+
     // 打开程序的日志文件
     if (logfile.Open(argv[4], "a+") == false)
     { printf("打开日志文件失败\n"); return -1; }
-    
+
     // 获取目录下所有的站点观测数据文件，将其入库
     _obtmindtodb(argv[1], argv[2], argv[3]);
 
@@ -162,7 +162,7 @@ bool _obtmindtodb(const char *pathname, const char *connstr, const char *charase
     { logfile.Write("打开目录(%s)失败\n", pathname); return false; }
 
     char tmp[11];   // 用于暂存结构体中需要进行小数转换为整数的变量的值
-    
+
     int totalcount  = 0;    // 文件的总记录数
     int insertcount = 0;    // 成功插入记录数
     CTimer Timer;           // 计时器，记录每个数据的处理耗时
@@ -214,7 +214,7 @@ bool _obtmindtodb(const char *pathname, const char *connstr, const char *charase
 void EXIT(int sig)
 {
     printf("进程(%d)退出，sig=%d", getpid(), sig);
-    
+
     conn.disconnect();
 
     exit(0);

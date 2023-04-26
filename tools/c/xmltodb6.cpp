@@ -60,7 +60,7 @@ bool _xmltoarg(char *strxmlbuffer);
 CLogFile logfile;
 
 connection conn;
- 
+
 void EXIT(int sig);
 
 // 业务处理主函数。
@@ -181,7 +181,7 @@ bool _xmltoarg(char *strxmlbuffer)
   if (strlen(starg.xmlpatherr)==0) { logfile.Write("xmlpatherr is null.\n"); return false; }
 
   GetXMLBuffer(strxmlbuffer,"timetvl",&starg.timetvl);
-  if (starg.timetvl< 2) starg.timetvl=2;   
+  if (starg.timetvl< 2) starg.timetvl=2;
   if (starg.timetvl>30) starg.timetvl=30;
 
   GetXMLBuffer(strxmlbuffer,"timeout",&starg.timeout);
@@ -282,13 +282,13 @@ bool _xmltodb()
 int _xmltodb(char *fullfilename,char *filename)
 {
   // 从vxmltotable容器中查找filename的入库参数，存放在stxmltotable结构体中。
-  if (findxmltotable(filename)==false) return 1; 
+  if (findxmltotable(filename)==false) return 1;
 
   // 获取表全部的字段和主键信息，如果获取失败，应该是数据库连接已失效。
   // 在本程序运行的过程中，如果数据库出现异常，一定会在这里发现。
   if (TABCOLS.allcols(&conn,stxmltotable.tname)==false) return 4;
   if (TABCOLS.pkcols(&conn,stxmltotable.tname)==false)  return 4;
-  
+
   // 如果TABCOLS.m_allcount为0，说明表根本不存在，返回2。
   if (TABCOLS.m_allcount==0) return 2; // 待入库的表不存在。
 
@@ -329,7 +329,7 @@ int _xmltodb(char *fullfilename,char *filename)
             logfile.Write("%s",strBuffer);
             logfile.Write("stmtupt.execute() failed.\n%s\n%s\n",stmtupt.m_sql,stmtupt.m_cda.message);
 
-            // 数据库连接已失效，无法继续，只能返回。 
+            // 数据库连接已失效，无法继续，只能返回。
             // 1053-在操作过程中服务器关闭。2013-查询过程中丢失了与MySQL服务器的连接。
             if ( (stmtupt.m_cda.rc==1053) || (stmtupt.m_cda.rc==2013) ) return 4;
           }
@@ -343,7 +343,7 @@ int _xmltodb(char *fullfilename,char *filename)
 
         // 数据库连接已失效，无法继续，只能返回。
         // 1053-在操作过程中服务器关闭。2013-查询过程中丢失了与MySQL服务器的连接。
-        if ( (stmtins.m_cda.rc==1053) || (stmtins.m_cda.rc==2013) ) return 4; 
+        if ( (stmtins.m_cda.rc==1053) || (stmtins.m_cda.rc==2013) ) return 4;
       }
     }
   }
@@ -376,7 +376,7 @@ bool loadxmltotable()
     GetXMLBuffer(strBuffer,"tname",stxmltotable.tname,30);        // 待入库的表名。
     GetXMLBuffer(strBuffer,"uptbz",&stxmltotable.uptbz);          // 更新标志：1-更新；2-不更新。
     GetXMLBuffer(strBuffer,"execsql",stxmltotable.execsql,300);   // 处理xml文件之前，执行的SQL语句。
-   
+
     vxmltotable.push_back(stxmltotable);
   }
 
@@ -464,7 +464,7 @@ bool CTABCOLS::allcols(connection *conn,char *tablename)
   while (true)
   {
     memset(&stcolumns,0,sizeof(struct st_columns));
-  
+
     if (stmt.next()!=0) break;
 
     // 列的数据类型，分为number、date和char三大类。
@@ -473,7 +473,7 @@ bool CTABCOLS::allcols(connection *conn,char *tablename)
 
     if (strcmp(stcolumns.datatype,"datetime")==0)  strcpy(stcolumns.datatype,"date");
     if (strcmp(stcolumns.datatype,"timestamp")==0) strcpy(stcolumns.datatype,"date");
-    
+
     if (strcmp(stcolumns.datatype,"tinyint")==0)   strcpy(stcolumns.datatype,"number");
     if (strcmp(stcolumns.datatype,"smallint")==0)  strcpy(stcolumns.datatype,"number");
     if (strcmp(stcolumns.datatype,"mediumint")==0) strcpy(stcolumns.datatype,"number");
@@ -558,7 +558,7 @@ void crtsql()
 
   memset(strinsertp1,0,sizeof(strinsertp1));
   memset(strinsertp2,0,sizeof(strinsertp2));
-  
+
   int colseq=1;   // values部分字段的序号。
 
   for (int ii=0;ii<TABCOLS.m_vallcols.size();ii++)
@@ -566,7 +566,7 @@ void crtsql()
     // upttime和keyid这两个字段不需要处理。
     if ( (strcmp(TABCOLS.m_vallcols[ii].colname,"upttime")==0) ||
          (strcmp(TABCOLS.m_vallcols[ii].colname,"keyid")==0) ) continue;
-    
+
     // 拼接strinsertp1
     strcat(strinsertp1,TABCOLS.m_vallcols[ii].colname); strcat(strinsertp1,",");
 
@@ -652,7 +652,7 @@ void crtsql()
     else
       SNPRINTF(strtemp,100,sizeof(strtemp)," and %s=str_to_date(:%d,'%%%%Y%%%%m%%%%d%%%%H%%%%i%%%%s')",TABCOLS.m_vallcols[ii].colname,colseq);
 
-    strcat(strupdatesql,strtemp);  
+    strcat(strupdatesql,strtemp);
 
     colseq++;
   }
@@ -674,13 +674,13 @@ void preparesql()
     // upttime和keyid这两个字段不需要处理。
     if ( (strcmp(TABCOLS.m_vallcols[ii].colname,"upttime")==0) ||
          (strcmp(TABCOLS.m_vallcols[ii].colname,"keyid")==0) ) continue;
- 
+
     // 注意，strcolvalue数组的使用不是连续的，是和TABCOLS.m_vallcols的下标是一一对应的。
     stmtins.bindin(colseq,strcolvalue[ii],TABCOLS.m_vallcols[ii].collen);
 
     colseq++;
   }
-  
+
   // 绑定更新sql语句的输入变量。
   // 如果入库参数中指定了表数据不需要更新，就不处理update语句了，函数返回。
   if (stxmltotable.uptbz!=1) return;
@@ -696,7 +696,7 @@ void preparesql()
     // upttime和keyid这两个字段不需要处理。
     if ( (strcmp(TABCOLS.m_vallcols[ii].colname,"upttime")==0) ||
          (strcmp(TABCOLS.m_vallcols[ii].colname,"keyid")==0) ) continue;
-  
+
     // 如果是主键字段，也不需要拼接在set的后面。
     if (TABCOLS.m_vallcols[ii].pkseq!=0) continue;
 
@@ -711,7 +711,7 @@ void preparesql()
   {
     // 如果不是主键字段，跳过，只有主键字段才拼接在where的后面。
     if (TABCOLS.m_vallcols[ii].pkseq==0) continue;
-    
+
     // 注意，strcolvalue数组的使用不是连续的，是和TABCOLS.m_vallcols的下标是一一对应的。
     stmtupt.bindin(colseq,strcolvalue[ii],TABCOLS.m_vallcols[ii].collen);
 

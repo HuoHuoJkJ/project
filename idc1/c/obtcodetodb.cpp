@@ -1,4 +1,4 @@
-/* 
+/*
  * obtcodetodb.cpp      本程序用于把全国站点参数数据保存到数据库表T_ZHOBTCODE中
  */
 #include "_public.h"
@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     // 打开日志文件
     if (logfile.Open(argv[4], "a+") == false)
     { printf("打开日志文件失败\n"); return -1; }
-    
+
     PActive.AddPInfo(10, "obtcodetodb");
 
     // 把全国站点参数文件加载到容器vstcode中
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     { logfile.Write("将参数加载到vstcode失败\n"); return -1; }
     logfile.Write("加载参数文件(%s)成功，站点数(%d)\n", argv[1], vstcode.size());
 
-    // 连接数据库 
+    // 连接数据库
     if (conn.connecttodb(argv[2], argv[3]) != 0)
     // if (conn.connecttodb("127.0.0.1,root,DYT.9525ing,TestDB,3306", "utf8") != 0)
     { logfile.Write("连接mysql失败，传入参数：%s，字符集：%s\n", argv[2], argv[3]); return -1; }
@@ -119,8 +119,8 @@ int main(int argc, char *argv[])
 void _help(void)
 {
     printf("Use:    obtcodetodb inifile connstr charaset logfile\n");
-    printf("Example:/project/tools1/bin/procctl 120 /project/idc1/bin/obtcodetodb /project/idc1/ini/stcode.ini \"127.0.0.1,root,DYT.9525ing,TestDB,3306\" utf8 /log/idc/obtcodetodb.log\n\n");
-    
+    printf("Example:/project/tools1/bin/procctl 120 /project/idc1/bin/obtcodetodb /project/idc/ini/stcode.ini \"127.0.0.1,root,DYT.9525ing,TestDB,3306\" utf8 /log/idc/obtcodetodb.log\n\n");
+
     printf("本程序用于把全国站点参数数据保存到数据库表T_ZHOBTCODE中\n");
     printf("inifile     存放全国站点参数的文件\n");
     printf("connstr     用于连接数据库的参数，如:\"192.168.0.1,username,password,mysqldb,3306\"\n");
@@ -160,11 +160,11 @@ bool LoadToVst(const char *inifile)
         CmdStr.GetValue(3, stcode.lat, 10);
         CmdStr.GetValue(4, stcode.lon, 10);
         CmdStr.GetValue(5, stcode.height, 10);
-        
+
         // 把站点参数stcode存入vstcode中
         vstcode.push_back(stcode);
     }
-    
+
 //   for (int ii=0;ii<vstcode.size();ii++)
     // logfile.Write("provname=%s,obtid=%s,cityname=%s,lat=%s,lon=%s,height=%s\n",\
                 //    vstcode[ii].provname,vstcode[ii].obtid,vstcode[ii].cityname,vstcode[ii].lat,\
@@ -177,8 +177,8 @@ bool LoadToVst(const char *inifile)
 void EXIT(int sig)
 {
     logfile.Write("接收到%d信号，进程即将退出\n", sig);
-    
+
     conn.disconnect();
-    
+
     exit(0);
 }

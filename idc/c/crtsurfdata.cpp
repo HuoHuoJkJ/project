@@ -87,7 +87,7 @@ int main(int argc,char *argv[])
 
   PActive.AddPInfo(20,"crtsurfdata");
 
-  // 把站点参数文件中加载到vstcode容器中。 
+  // 把站点参数文件中加载到vstcode容器中。
   if (LoadSTCode(argv[1])==false) return -1;
 
   // 获取当前时间，当作观测时间。
@@ -110,7 +110,7 @@ int main(int argc,char *argv[])
   return 0;
 }
 
-// 把站点参数文件中加载到vstcode容器中。 
+// 把站点参数文件中加载到vstcode容器中。
 bool LoadSTCode(const char *inifile)
 {
   // 打开站点参数文件。
@@ -245,7 +245,7 @@ bool CrtSurfFile(const char *outpath,const char *datafmt)
 }
 
 // 程序退出和信号2、15的处理函数。
-void EXIT(int sig)  
+void EXIT(int sig)
 {
   logfile.Write("程序退出，sig=%d\n\n",sig);
 

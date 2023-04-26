@@ -17,7 +17,7 @@ CZHOBTMIND::~CZHOBTMIND()
 {}
 
 // 把connection和CLogFile传进去，用构造函数传也可以
-void CZHOBTMIND::BindConnLog(connection *conn, CLogFile *logfile) 
+void CZHOBTMIND::BindConnLog(connection *conn, CLogFile *logfile)
 {
     m_conn = conn; m_logfile = logfile;
 }
