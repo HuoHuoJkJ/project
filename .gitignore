@@ -6,3 +6,11 @@ tools2/bin/procctl
 tools2/c/ftpgetfiles
 tools2/c/ftpgetfiles.cpp
 tools2/c/makefile
+tools1/tools2/bin/checkproc
+tools1/tools2/bin/deletefiles
+tools1/tools2/bin/ftpgetfiles
+tools1/tools2/bin/gzipfiles
+tools1/tools2/bin/procctl
+tools1/tools2/c/ftpgetfiles
+tools1/tools2/c/ftpgetfiles.cpp
+tools1/tools2/c/makefile
