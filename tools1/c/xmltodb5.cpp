@@ -664,6 +664,29 @@ bool _mvXmlfileToBakErr(char *filename, char *srcpath, char *destpath)
 
 void EXIT(int sig)
 {
+	printf("接收到%s信号，进程退出\n\n", sig);
+	exit(0);
+}
+
+CTABCOLS::CTABCOLS()
+{
+	initdata();
+}
+
+void CTABCOLS::initdata()
+{
+	m_allcount = m_pkcount = 0;
+	m_vallcols.clear();
+	m_vpkcols.clear();
+	memset(m_allcols, 0, sizeof(m_allcols));
+	memset(m_pkcols, 0, sizeof(m_pkcols));
+}
+
+bool CTABCOLS::allcols(connection *conn, char *tablename)
+{
+	/*
+	 * 使用sql语句
+	 * select lower(column_name),lower(data_type),character_maximum_length from information_schema.COLUMNS
 	 *  where table_name='T_ZHOBTMIND';
 	 * 可以查询表T_ZHOBTMIND的列名、列的数据类型、所有列的最大字符长度（对于字符类型列）
 	 *
