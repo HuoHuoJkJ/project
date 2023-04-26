@@ -1,0 +1,8 @@
+tools2/bin/checkproc
+tools2/bin/deletefiles
+tools2/bin/ftpgetfiles
+tools2/bin/gzipfiles
+tools2/bin/procctl
+tools2/c/ftpgetfiles
+tools2/c/ftpgetfiles.cpp
+tools2/c/makefile
