@@ -41,7 +41,8 @@ int main(int argc, char *argv[])
 	if (argc != 3) { _help(); return -1; }
 
 	// 关闭信号和IO
-	CloseIOAndSignal(true); signal(SIGINT, _exit); signal(SIGTERM, _exit);
+	// CloseIOAndSignal(true);
+	signal(SIGINT, _exit); signal(SIGTERM, _exit);
 
 	if (logfile.Open(argv[1],"a+") == false)
 	{ printf("打开日志文件失败（%s）。\n", argv[1]); return -1; }
@@ -50,7 +51,7 @@ int main(int argc, char *argv[])
 	if (_xmltoarg(argv[2]) == false) return -1;
 
 	// 当程序稳定了之后再启用，否则，调试程序时，可能会被守护进程误杀
-	PActive.AddPInfo(starg.timeout, starg.pname);
+	// PActive.AddPInfo(starg.timeout, starg.pname);
 
 	if (connloc.connecttodb(starg.localconnstr, starg.charset) != 0)
 	{ logfile.Write("connect database(%s) 失败\n%s\n", starg.localconnstr, connloc.m_cda.message); _exit(-1); }
@@ -81,9 +82,9 @@ void _help()
 
 	// 因为测试的需要，xmltodb程序每次会删除LK_ZHOBTCODE1中的数据，全部的记录重新入库，id会变。
 	// 所以以下脚本不能用id，要用obtid，用id会出问题，可以试试。
-	printf("/project/tools1/bin/procctl 10 /project/tools1/bin/syncupdate /log/idc/syncupdate_ZHOBTCODE3.log \"<localconnstr>127.0.0.1,root,DYT.9525ing,TestDB1,3306</localconnstr><charset>utf8</charset><fedtname>LK_ZHOBTCODE1</fedtname><localtname>T_ZHOBTCODE3</localtname><remotecols>obtid,cityname,provname,lat,lon,height/10,upttime,keyid</remotecols><localcols>stid,cityname,provname,lat,lon,altitude,upttime,id</localcols><where>where obtid like '54%%%%'</where><synctype>2</synctype><remoteconnstr>127.0.0.1,root,DYT.9525ing,TestDB,3306</remoteconnstr><remotetname>T_ZHOBTCODE1</remotetname><remotekeycol>obtid</remotekeycol><localkeycol>stid</localkeycol><maxcount>10</maxcount><timeout>50</timeout><pname>syncupdate_ZHOBTCODE3</pname>\"\n\n");
+	printf("/project/tools1/bin/procctl 10 /project/tools1/bin/syncupdate /log/idc/syncupdate_ZHOBTCODE3.log \"<localconnstr>127.0.0.1,root,DYT.9525ing,TestDB1,3306</localconnstr><charset>utf8</charset><fedtname>LK_ZHOBTCODE1</fedtname><localtname>T_ZHOBTCODE3</localtname><remotecols>obtid,cityname,provname,lat,lon,height/10,upttime,keyid</remotecols><localcols>stid,cityname,provname,lat,lon,altitude,upttime,id</localcols><where>where obtid like '54%%%%'</where><synctype>2</synctype><remoteconnstr>10.0.8.4,root,DYT.9525ing,TestDB,3306</remoteconnstr><remotename>T_ZHOBTCODE1</remotename><remotekeycol>obtid</remotekeycol><localkeycol>stid</localkeycol><maxcount<10</maxcount><timeout>50</timeout><pname>syncupdate_ZHOBTCODE3</pname>\"\n\n");
 
-	printf("/project/tools1/bin/procctl 10 /project/tools1/bin/syncupdate /log/idc/syncupdate_ZHOBTMIND2.log \"<localconnstr>127.0.0.1,root,DYT.9525ing,TestDB1,3306</localconnstr><charset>utf8</charset><fedtname>LK_ZHOBTMIND1</fedtname><localtname>T_ZHOBTMIND2</localtname><remotecols>obtid,ddatetime,t,p,u,wd,wf,r,vis,upttime,keyid</remotecols><localcols>stid,ddatetime,t,p,u,wd,wf,r,vis,upttime,recid</localcols><where>where ddatetime>timestampadd(minute,-120,now())</where><synctype>2</synctype><remoteconnstr>127.0.0.1,root,DYT.9525ing,TestDB,3306</remoteconnstr><remotetname>T_ZHOBTMIND1</remotetname><remotekeycol>keyid</remotekeycol><localkeycol>recid</localkeycol><maxcount>300</maxcount><timeout>50</timeout><pname>syncupdate_ZHOBTMIND2</pname>\"\n\n");
+	printf("/project/tools1/bin/procctl 10 /project/tools1/bin/syncupdate /log/idc/syncupdate_ZHOBTMIND2.log \"<localconnstr>127.0.0.1,root,DYT.9525ing,TestDB1,3306</localconnstr><charset>utf8</charset><fedtname>LK_ZHOBTMIND1</fedtname><localtname>T_ZHOBTMIND2</localtname><remotecols>obtid,ddatetime,t,p,u,wd,wf,r,vis,upttime,keyid</remotecols><localcols>stid,ddatetime,t,p,u,wd,wf,r,vis,upttime,recid</localcols><where>where ddatetime>timestampadd(minute,-120,now())</where><synctype>2</synctype><remoteconnstr>10.0.8.4,root,DYT.9525ing,TestDB,3306</remoteconnstr><remotetname>T_ZHOBTMIND1</remotetname><remotekeycol>keyid</remotekeycol><localkeycol>recid</localkeycol><maxcount>300</maxcount><timeout>50</timeout><pname>syncupdate_ZHOBTMIND2</pname>\"\n\n");
 
 	printf("本程序是数据中心的公共功能模块，采用刷新的方法同步mysql数据库之间的表。\n");
 
@@ -225,123 +226,6 @@ bool _syncupdate()
 		connloc.commit();
 
 		return true;
-	}
-
-	// 连接远程数据库
-	if (connrem.connecttodb(starg.remoteconnstr, starg.charset) != 0)
-	{ logfile.Write("连接远程数据库(%s)失败\n%s\n", starg.remoteconnstr, connrem.m_cda.message); return false; }
-	// logfile.Write("connect database(%s) 成功\n", starg.remoteconnstr);
-
-	char remkeyvalue[51];
-	sqlstatement stmtsel(&connrem);
-	// 从远程数据库中查找需要同步记录的key字段的值
-	stmtsel.prepare("select %s from %s %s", starg.remotekeycol, starg.remotetname, starg.where);
-	stmtsel.bindout(1, remkeyvalue, 50);
-
-	if (stmtsel.execute() != 0)
-	{ logfile.Write("stmtsel 执行失败\n%s\n%s\n", stmtsel.m_sql, stmtsel.m_cda.message); return false; }
-
-	char strbind[2001];		// 绑定同步SQL语句参数的字符串
-	memset(strbind, 0, sizeof(strbind));
-	char strtemp[11];
-	// 拼接绑定同步SQL语句参数的字符串
-	for (int ii = 0; ii < starg.maxcount; ii++)
-	{ SPRINTF(strtemp, sizeof(strtemp), ":%d,", ii+1); strcat(strbind, strtemp); }
-	strbind[strlen(strbind)-1] = 0;
-
-	char lockeyvalues[starg.maxcount][51];
-	// 准备删除本地表数据的SQL语句，一次删除starg.maxcount条记录
-	// delete from T_ZHOBTCODE3 where stid in (:1,:2,...,:maxcount);
-	stmtdel.prepare("delete from %s where %s in (%s)", starg.localtname, starg.localkeycol, strbind);
-	for (int ii = 0; ii < starg.maxcount; ii++)
-		stmtdel.bindin(ii+1, lockeyvalues[ii], 50);
-	// logfile.WriteEx("stmtdel = delete from %s where %s in (%s)", starg.localtname, starg.localkeycol, strbind);
-
-	// 准备插入本地表数据的SQL语句，一次插入starg.maxcount条记录
-	// insert into T_ZHOBTCODE3(starg.localcols) select starg.remotecols from starg.fedtname where starg.remotekeycol in strbind
-	stmtins.prepare("insert into %s(%s) select %s from %s where %s in (%s)", starg.localtname, starg.localcols, starg.remotecols, starg.fedtname, starg.remotekeycol, strbind);
-	for (int ii = 0; ii < starg.maxcount; ii++)
-		stmtins.bindin(ii+1, lockeyvalues[ii], 50);
-	// logfile.WriteEx("stmtins = insert into %s(%s) select %s from %s where %s in (%s)", starg.localtname, starg.localcols, starg.remotecols, starg.fedtname, starg.remotekeycol, strbind);
-
-	int count = 0;
-	memset(lockeyvalues, 0, sizeof(lockeyvalues));
-
-	while (true)
-	{
-		// 获取需要同步数据的结果集
-		if (stmtsel.next() != 0) break;
-
-		strcpy(lockeyvalues[count], remkeyvalue);
-		count++;
-		// for (int ii = 0; ii < count; ii++)
-			// logfile.Write("- %d\t%d\t%s\n", count, ii+1, lockeyvalues[ii]);
-
-		// 每starg.maxcount条记录执行一次同步
-		if (count == starg.maxcount)
-		{
-			// for (int ii = 0; ii < count; ii++)
-				// logfile.Write("%d\t%s\n", count, lockeyvalues[ii]);
-			// 从本地表中删除记录
-			if (stmtdel.execute() != 0)
-			// 执行从本地表中删除记录，一般不会报错
-			// 如果报错，肯定是数据库的问题或同步参数配置不正确（如：表名写错等），流程不必继续
-			{ logfile.Write("stmtdel 执行失败\n%s\n%s\n", stmtdel.m_sql, stmtdel.m_cda.message); return false; }
-
-			// 向本地表中插入记录
-			if (stmtins.execute() != 0)
-			// 执行从本地表中插入记录，一般不会报错
-			// 如果报错，肯定是数据库的问题或同步参数配置不正确（如：表名写错等），流程不必继续
-			{ logfile.Write("stmtins 执行失败\n%s\n%s\n", stmtins.m_sql, stmtins.m_cda.message);  return false; }
-
-			logfile.Write("sync %s to %s (%d rows) in %.2fsec\n", starg.fedtname, starg.localtname, count, Timer.Elapsed());
-			connloc.commit();
-
-			count = 0;
-			memset(lockeyvalues, 0, sizeof(lockeyvalues));
-			PActive.UptATime();
-		}
-	}
-
-	// 如果count > 0，表示有剩余，同步剩余的部分
-	// 此处count的值已经小于starg.maxcount，而sql语句仍然为
-	// stmtdel = delete from T_ZHOBTCODE3 where stid in (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10)
-	// stmtins = insert into T_ZHOBTCODE3(stid,cityname,provname,lat,lon,altitude,upttime,id)
-	// 					select obtid,cityname,provname,lat,lon,height/10,upttime,keyid from LK_ZHOBTCODE1
-	//						where obtid in (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10)
-	// 但是由于我们会初始化lockeyvalues，没有被赋予的值，统一设置为0，这样就不会造成乱删和乱插入的现象
-	//
-	// 下面是:ii 为0的例子
-	// mysql> select obtid,cityname,provname,lat,lon,height/10,upttime,keyid from LK_ZHOBTCODE1 where obtid in (54826,54836,54842,54843,54857,0,0,0,0,0);
-	// +-------+----------+----------+------+-------+-----------+---------------------+--------+
-	// | obtid | cityname | provname | lat  | lon   | height/10 | upttime             | keyid  |
-	// +-------+----------+----------+------+-------+-----------+---------------------+--------+
-	// | 54826 | 泰山      | 山东     | 3615 | 11706 | 1533.7000 | 2023-05-08 09:59:24 | 248698 |
-	// | 54836 | 沂源      | 山东     | 3611 | 11810 |  305.1000 | 2023-05-08 09:59:24 | 248699 |
-	// | 54842 | 平度      | 山东     | 3647 | 12000 |   62.2000 | 2023-05-08 09:59:24 | 248700 |
-	// | 54843 | 潍坊      | 山东     | 3645 | 11912 |   22.2000 | 2023-05-08 09:59:24 | 248701 |
-	// | 54857 | 青岛      | 山东     | 3604 | 12020 |   76.0000 | 2023-05-08 09:59:24 | 248702 |
-	// +-------+----------+----------+------+-------+-----------+---------------------+--------+
-	// 5 rows in set (0.01 sec)
-
-	if (count > 0)
-	{
-		// for (int ii = 0; ii < count; ii++)
-			// logfile.Write("%d\t%s\n", count, lockeyvalues[ii]);
-		// 从本地表中删除记录
-		if (stmtdel.execute() != 0)
-		{ logfile.Write("stmtdel 执行失败\n%s\n%s\n", stmtdel.m_sql, stmtdel.m_cda.message); return false; }
-
-		// 向本地表中插入记录
-		if (stmtins.execute() != 0)
-		{ logfile.Write("stmtins 执行失败\n%s\n%s\n", stmtins.m_sql, stmtins.m_cda.message);  return false; }
-
-		logfile.Write("sync %s to %s (%d rows) in %.2fsec\n", starg.fedtname, starg.localtname, count, Timer.Elapsed());
-		connloc.commit();
-
-		count = 0;
-		memset(lockeyvalues, 0, sizeof(lockeyvalues));
-		PActive.UptATime();
 	}
 
 	return true;
