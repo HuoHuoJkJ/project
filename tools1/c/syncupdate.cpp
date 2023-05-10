@@ -294,7 +294,7 @@ bool _syncupdate()
 			// 如果报错，肯定是数据库的问题或同步参数配置不正确（如：表名写错等），流程不必继续
 			{ logfile.Write("stmtins 执行失败\n%s\n%s\n", stmtins.m_sql, stmtins.m_cda.message);  return false; }
 
-			logfile.Write("sync %s to %s (%d rows) in %.2fsec\n", starg.fedtname, starg.localtname, count, Timer.Elapsed());
+			// logfile.Write("sync %s to %s (%d rows) in %.2fsec\n", starg.fedtname, starg.localtname, count, Timer.Elapsed());
 			connloc.commit();
 
 			count = 0;
@@ -336,13 +336,15 @@ bool _syncupdate()
 		if (stmtins.execute() != 0)
 		{ logfile.Write("stmtins 执行失败\n%s\n%s\n", stmtins.m_sql, stmtins.m_cda.message);  return false; }
 
-		logfile.Write("sync %s to %s (%d rows) in %.2fsec\n", starg.fedtname, starg.localtname, count, Timer.Elapsed());
+		// logfile.Write("sync %s to %s (%d rows) in %.2fsec\n", starg.fedtname, starg.localtname, count, Timer.Elapsed());
 		connloc.commit();
 
 		count = 0;
 		memset(lockeyvalues, 0, sizeof(lockeyvalues));
 		PActive.UptATime();
 	}
+
+	logfile.Write("sync %s to %s (%d rows) in %.2fsec\n", starg.fedtname, starg.localtname, stmtsel.m_cda.rpc, Timer.Elapsed());
 
 	return true;
 }

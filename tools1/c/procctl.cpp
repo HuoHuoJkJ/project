@@ -7,7 +7,7 @@
 
 int main(int argc, char *argv[])
 {
-    /* 
+    /*
      * 由于执行execl函数后，会杀死当前进程，这不是我们想看到的，因此我们可以调用fork函数，让子进程来执行execl函数，这样就能够保证父进程的执行
      * procctl 10 /usr/bin/ls -lt /tmp
      */
@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     {
         printf("Error! Use procctl timetvl program argv ...\n");
         printf("Example:/project/tools1/bin/procctl 5 /usr/bin/ls -lt /tmp /project\n\n");
-        
+
         printf("本程序是服务程序的调度程序，周期性启动服务程序或shell脚本\n");
         printf("timetvl program的运行周期 单位：秒 被调度的服务程序在timetvl秒后会被本程序再次启动。\n");
         printf("program 被调度的服务程序名 必须使用全路径。\n");
@@ -29,10 +29,10 @@ int main(int argc, char *argv[])
         signal(i, SIG_IGN);
         close(i);
     }
-    
-    // 退出父进程，让进程有1号进程托管。下面的代码由子进程来执行，子进程被fork后，也会产生子进程.......
+
+    // 退出父进程，让进程有1号进程托管。下面的代码由子进程来执行，子进程被fork后，也会产生子进程
     if(fork() > 0) exit(0);
-    
+
     signal(SIGCHLD, SIG_DFL);
 
     char *pargv[argc];
@@ -56,6 +56,6 @@ int main(int argc, char *argv[])
             sleep(atoi(argv[1]));
         }
     }
-    
+
     return 0;
 }

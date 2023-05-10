@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
     {
         printf("\n");
         printf("Error! Use:./checkproc logfilename\n");
-        printf("Example:/project/tools1/bin/procctl 10 /project/tools1/bin/checkproc /tmp/log/checkprox.log\n\n");
+        printf("Example:/project/tools1/bin/procctl 10 /project/tools1/bin/checkproc /log/idc/checkprox.log\n\n");
 
         printf("本程序用于检查后台服务程序是否超时，如果以超时，就终止它。\n");
         printf("注意：\n");
@@ -18,11 +18,11 @@ int main(int argc, char *argv[])
 
         return 0;
     }
-    
+
     // 打开日志文件
     if ( logfile.Open(argv[1], "a+", false) == false)
     { printf("logfile.Open(%s) failed!", argv[1]); return -1; }
-    
+
     // 创建/获取共享内存，键值为SHMKEYP，大小为MAXNUMP个st_procinfo结构体的大小。
     int shmid = 0;
     if ( (shmid = shmget((key_t)SHMKEYP, MAXNUMP*sizeof(struct st_procinfo), 0666|IPC_CREAT)) == -1 )
@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 
     // 将共享内存链接到当前进程的地址空间
     struct st_procinfo *shm = (struct st_procinfo *)shmat(shmid, 0, 0);
-    
+
     for (int ii = 0; ii < MAXNUMP; ii++)
     {
         // 如果ii位置的pid为0 continue
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
             memset(&shm[ii], 0, sizeof(struct st_procinfo));
         }
     }
-    
+
     // 把共享内存从当前进程中分离。
     shmdt(shm);
 
