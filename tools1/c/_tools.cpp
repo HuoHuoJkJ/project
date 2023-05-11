@@ -26,6 +26,7 @@ bool CTABCOLS::allcols(connection *conn, char *tablename)
 	 * 因此在查询列名和列的数据类型时，我们使用了lower函数来将其转换为小写字母
 	 */
 	m_allcount = 0;
+	m_maxcollen = 0;
 	m_vallcols.clear();
 	memset(m_allcols, 0, sizeof(m_allcols));
 
@@ -80,6 +81,9 @@ bool CTABCOLS::allcols(connection *conn, char *tablename)
 
 		strcat(m_allcols, stcolumns.colname);  strcat(m_allcols, ",");
 		m_vallcols.push_back(stcolumns);
+
+		if (m_maxcollen < stcolumns.collen) m_maxcollen = stcolumns.collen;
+
 		m_allcount++;
 	}
 
@@ -95,6 +99,7 @@ bool CTABCOLS::pkcols(connection *conn, char *tablename)
 {
 	// 初始化成员变量
 	m_pkcount = 0;
+	m_maxcollen = 0;
 	m_vpkcols.clear();
 	memset(m_pkcols, 0, sizeof(m_pkcols));
 	struct st_columns stcolumns;

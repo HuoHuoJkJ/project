@@ -46,6 +46,7 @@
 
 # 清理T_ZHOBTMIND表中120分之前的数据，防止磁盘空间被撑满
 /project/tools1/bin/procctl 120 /project/tools1/bin/execsql /project/idc1/sql/cleardata.sql "127.0.0.1,root,DYT.9525ing,TestDB,3306" utf8 /log/idc/execsql.log
+/project/tools1/bin/procctl 120 /project/tools1/bin/execsql /project/idc1/sql/cleardata1.sql "127.0.0.1,root,DYT.9525ing,TestDB1,3306" utf8 /log/idc/execsql.log
 
 # 每3600秒从数据源数据库 全量抽取 一次存放站点参数的表的数据 保存到 目录/idcdata/dmindata下
 /project/tools1/bin/procctl 3600 /project/tools1/bin/dminingmysql /log/idc/dminingmysql_ZHOBTCODE.log "<connstr>127.0.0.1,root,DYT.9525ing,TestDB,3306</connstr><charaset>utf8</charaset><selectsql>select obtid,cityname,provname,lat,lon,height from T_ZHOBTCODE</selectsql><fieldstr>obtid,cityname,provname,lat,lon,height</fieldstr><fieldlen>10,30,30,10,10,10</fieldlen><bfilename>ZHOBTCODE</bfilename><efilename>HYCZ</efilename><outpath>/idcdata/dmindata</outpath><timeout>30</timeout><pname>dminingmysq1_ZHOBTMIND</pname>"
