@@ -19,7 +19,7 @@ MYSQLCPP = /project/public/db/mysql/_mysql.cpp
 # 编译参数
 CFLAGS = -g
 
-all: procctl checkproc gzipfiles deletefiles ftpgetfiles ftpputfiles tcpputfiles fileserver execsql dminingmysql xmltodb syncupdate syncincrement syncincrementex
+all: procctl checkproc gzipfiles deletefiles ftpgetfiles ftpputfiles tcpputfiles fileserver execsql dminingmysql xmltodb syncupdate syncincrement syncincrementex deletetabledata migratetabledata
 
 procctl:procctl.cpp
 	g++ -o procctl procctl.cpp
@@ -77,5 +77,13 @@ syncincrementex:syncincrementex.cpp _tools.h _tools.cpp
 	g++ $(CFLAGS) -o syncincrementex syncincrementex.cpp _tools.cpp $(PUBINCL) $(PUBCPP) $(MYSQLINCL) $(MYSQLCPP) $(MYSQLLIB) $(MYSQLLIBS) -lm -lc
 	cp syncincrementex ../bin/.
 
+deletetabledata:deletetabledata.cpp _tools.h _tools.cpp
+	g++ $(CFLAGS) -o deletetabledata deletetabledata.cpp _tools.cpp $(PUBINCL) $(PUBCPP) $(MYSQLINCL) $(MYSQLCPP) $(MYSQLLIB) $(MYSQLLIBS) -lm -lc
+	cp deletetabledata ../bin/.
+
+migratetabledata:migratetabledata.cpp _tools.h _tools.cpp
+	g++ $(CFLAGS) -o migratetabledata migratetabledata.cpp _tools.cpp $(PUBINCL) $(PUBCPP) $(MYSQLINCL) $(MYSQLCPP) $(MYSQLLIB) $(MYSQLLIBS) -lm -lc
+	cp migratetabledata ../bin/.
+
 clean:
-	rm -f procctl checkproc gzipfiles deletefiles ftpgetfiles ftpputfiles tcpputfiles fileserver execsql dminingmysql xmltodb syncupdate syncincrement syncincrementex
+	rm -f procctl checkproc gzipfiles deletefiles ftpgetfiles ftpputfiles tcpputfiles fileserver execsql dminingmysql xmltodb syncupdate syncincrement syncincrementex deletetabledata migratetabledata
