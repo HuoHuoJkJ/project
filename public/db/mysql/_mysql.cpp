@@ -6,10 +6,10 @@
 #include "_mysql.h"
 
 connection::connection()
-{ 
+{
   m_conn = NULL;
 
-  m_state = 0; 
+  m_state = 0;
 
   memset(&m_env,0,sizeof(LOGINENV));
 
@@ -41,36 +41,36 @@ void connection::setdbopt(const char *connstr)
   // ip
   bpos=(char *)connstr;
   epos=strstr(bpos,",");
-  if (epos > 0) 
+  if (epos > 0)
   {
-    strncpy(m_env.ip,bpos,epos-bpos); 
+    strncpy(m_env.ip,bpos,epos-bpos);
   }else return;
 
   // user
   bpos=epos+1;
   epos=0;
   epos=strstr(bpos,",");
-  if (epos > 0) 
+  if (epos > 0)
   {
-    strncpy(m_env.user,bpos,epos-bpos); 
+    strncpy(m_env.user,bpos,epos-bpos);
   }else return;
 
   // pass
   bpos=epos+1;
   epos=0;
   epos=strstr(bpos,",");
-  if (epos > 0) 
+  if (epos > 0)
   {
-    strncpy(m_env.pass,bpos,epos-bpos); 
+    strncpy(m_env.pass,bpos,epos-bpos);
   }else return;
 
   // dbname
   bpos=epos+1;
   epos=0;
   epos=strstr(bpos,",");
-  if (epos > 0) 
+  if (epos > 0)
   {
-    strncpy(m_env.dbname,bpos,epos-bpos); 
+    strncpy(m_env.dbname,bpos,epos-bpos);
   }else return;
 
   // port
@@ -131,28 +131,28 @@ int connection::disconnect()
 {
   memset(&m_cda,0,sizeof(m_cda));
 
-  if (m_state == 0) 
-  { 
+  if (m_state == 0)
+  {
     m_cda.rc=-1; strncpy(m_cda.message,"database not open.",128); return -1;
   }
 
   rollback();
 
-  mysql_close(m_conn); 
+  mysql_close(m_conn);
 
   m_conn=NULL;
 
-  m_state = 0;    
+  m_state = 0;
 
   return 0;
 }
 
 int connection::rollback()
-{ 
+{
   memset(&m_cda,0,sizeof(m_cda));
 
-  if (m_state == 0) 
-  { 
+  if (m_state == 0)
+  {
     m_cda.rc=-1; strncpy(m_cda.message,"database not open.",128); return -1;
   }
 
@@ -161,15 +161,15 @@ int connection::rollback()
     m_cda.rc=mysql_errno(m_conn); strncpy(m_cda.message,mysql_error(m_conn),2000); mysql_close(m_conn); m_conn=NULL;  return -1;
   }
 
-  return 0;    
+  return 0;
 }
 
 int connection::commit()
-{ 
+{
   memset(&m_cda,0,sizeof(m_cda));
 
-  if (m_state == 0) 
-  { 
+  if (m_state == 0)
+  {
     m_cda.rc=-1; strncpy(m_cda.message,"database not open.",128); return -1;
   }
 
@@ -183,8 +183,8 @@ int connection::commit()
 
 void connection::err_report()
 {
-  if (m_state == 0) 
-  { 
+  if (m_state == 0)
+  {
     m_cda.rc=-1; strncpy(m_cda.message,"database not open.",128); return;
   }
 
@@ -236,7 +236,7 @@ int sqlstatement::connect(connection *conn)
   // 注意，一个sqlstatement在程序中只能绑定一个connection，不允许绑定多个connection。
   // 所以，只要这个sqlstatement已绑定connection，直接返回成功。
   if ( m_state == 1 ) return 0;
-  
+
   memset(&m_cda,0,sizeof(m_cda));
 
   m_conn=conn;
@@ -246,7 +246,7 @@ int sqlstatement::connect(connection *conn)
   {
     m_cda.rc=-1; strncpy(m_cda.message,"database not open.\n",128); return -1;
   }
-  
+
   // 如果数据库没有连接好，直接返回失败
   if (m_conn->m_state == 0)
   {
@@ -258,7 +258,7 @@ int sqlstatement::connect(connection *conn)
     err_report(); return m_cda.rc;
   }
 
-  m_state = 1;  
+  m_state = 1;
 
   m_autocommitopt=m_conn->m_autocommitopt;
 
@@ -308,7 +308,7 @@ void sqlstatement::err_report()
   {
     m_cda.rc=-1; strncpy(m_cda.message,"cursor not open.\n",128); return;
   }
-  
+
   memset(&m_conn->m_cda,0,sizeof(m_conn->m_cda));
 
   m_cda.rc=-1;
@@ -407,7 +407,7 @@ void MY__UpdateStr(char *str,const char *str1,const char *str2,bool bloop)
   }
 }
 
-  
+
 int sqlstatement::prepare(const char *fmt,...)
 {
   memset(&m_cda,0,sizeof(m_cda));
@@ -425,14 +425,14 @@ int sqlstatement::prepare(const char *fmt,...)
   va_end(ap);
 
   // 为了和oracle兼容，把:1,:2,:3...等替换成?
-  char strtmp[11]; 
+  char strtmp[11];
   for (int ii=MAXPARAMS;ii>0;ii--)
   {
     memset(strtmp,0,sizeof(strtmp));
     snprintf(strtmp,10,":%d",ii);
     MY__UpdateStr(m_sql,strtmp,"?",false);
   }
-   
+
   // 为了和oracle兼容
   // 把to_date规制成str_to_date。
   if (strstr(m_sql,"str_to_date")==0) MY__UpdateStr(m_sql,"to_date","str_to_date",false);
@@ -455,7 +455,7 @@ int sqlstatement::prepare(const char *fmt,...)
 
   // 判断是否是查询语句，如果是，把m_sqltype设为0，其它语句设为1。
   m_sqltype=1;
-  
+
   // 从待执行的SQL语句中截取30个字符，如果是以"select"打头，就认为是查询语句。
   char strtemp[31]; memset(strtemp,0,sizeof(strtemp)); strncpy(strtemp,m_sql,30);
   MY__ToUpper(strtemp); MY__DeleteLChar(strtemp,' ');
@@ -469,7 +469,7 @@ int sqlstatement::prepare(const char *fmt,...)
 
   return 0;
 }
-  
+
 int sqlstatement::bindin(unsigned int position,int *value)
 {
   if (m_state == 0)
@@ -807,17 +807,17 @@ int sqlstatement::execute()
       err_report(); return m_cda.rc;
     }
   }
-  
+
   // 处理字符串字段为空的情况。
   for (int ii=0;ii<maxbindin;ii++)
   {
     if (params_in[ii].buffer_type == MYSQL_TYPE_VAR_STRING )
     {
-      if (strlen((char *)params_in[ii].buffer)==0) 
+      if (strlen((char *)params_in[ii].buffer)==0)
       {
         params_in_is_null[ii]=true;
       }
-      else 
+      else
       {
         params_in_is_null[ii]=false;
         params_in_length[ii]=strlen((char *)params_in[ii].buffer);
@@ -826,7 +826,7 @@ int sqlstatement::execute()
 
     if (params_in[ii].buffer_type == MYSQL_TYPE_BLOB )
     {
-      if ((*params_in[ii].length)==0) 
+      if ((*params_in[ii].length)==0)
         params_in_is_null[ii]=true;
       else
         params_in_is_null[ii]=false;
@@ -835,25 +835,25 @@ int sqlstatement::execute()
 
   if (mysql_stmt_execute(m_handle) != 0)
   {
-    err_report(); 
+    err_report();
 
     if (m_cda.rc==1243) memcpy(&m_cda,&m_cda1,sizeof(struct CDA_DEF));
 
     return m_cda.rc;
   }
-  
+
   // 如果不是查询语句，就获取影响记录的行数
-  if (m_sqltype == 1) 
-  { 
+  if (m_sqltype == 1)
+  {
     m_cda.rpc=m_handle->affected_rows;
     m_conn->m_cda.rpc=m_cda.rpc;
   }
 
   /*
-  if (m_sqltype == 0) 
+  if (m_sqltype == 0)
    mysql_store_result(m_conn->m_conn);
   */
-    
+
   return 0;
 }
 
@@ -879,35 +879,35 @@ int sqlstatement::next()
   {
     m_cda.rc=-1; strncpy(m_cda.message,"cursor not open.\n",128); return -1;
   }
-  
+
   // 如果语句未执行成功，直接返回失败。
   if (m_cda.rc != 0) return m_cda.rc;
-  
+
   // 判断是否是查询语句，如果不是，直接返回错误
   if (m_sqltype != 0)
   {
     m_cda.rc=-1; strncpy(m_cda.message,"no recordset found.\n",128); return -1;
   }
-  
+
   int ret=mysql_stmt_fetch(m_handle);
 
-  if (ret==0) 
-  { 
-    m_cda.rpc++; return 0; 
+  if (ret==0)
+  {
+    m_cda.rpc++; return 0;
   }
- 
-  if (ret==1) 
+
+  if (ret==1)
   {
     err_report(); return m_cda.rc;
   }
 
   if (ret==MYSQL_NO_DATA) return MYSQL_NO_DATA;
 
-  if (ret==MYSQL_DATA_TRUNCATED) 
+  if (ret==MYSQL_DATA_TRUNCATED)
   {
     m_cda.rpc++; return 0;
   }
-  
+
   return 0;
 }
 
@@ -935,7 +935,7 @@ unsigned long filetobuf(const char *filename,char *buffer)
   return total_bytes;
 }
 
-// 把buffer中的内容写入文件filename，size为buffer中有效内容的大小。      
+// 把buffer中的内容写入文件filename，size为buffer中有效内容的大小。
 // 成功返回true，失败返回false。
 bool buftofile(const char *filename,char *buffer,unsigned long size)
 {

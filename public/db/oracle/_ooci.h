@@ -51,7 +51,7 @@ struct CDA_DEF       // OCI接口函数执行的结果。
 };
 
 int oci_init(LOGINENV *env);
-int oci_close(LOGINENV *env); 
+int oci_close(LOGINENV *env);
 int oci_context_create(LOGINENV *env,OCI_CXT *cxt);
 int oci_context_close(OCI_CXT *cxt);
 
@@ -91,7 +91,7 @@ public:
 
   // 提交事务。
   // 返回值：0-成功，其它失败，程序中一般不必关心返回值。
-  int commit(); 
+  int commit();
 
   // 回滚事务。
   // 返回值：0-成功，其它失败，程序中一般不必关心返回值。
@@ -150,7 +150,7 @@ public:
   // 返回值：0-成功，其它失败，只要conn参数是有效的，并且数据库的游标资源足够，connect方法不会返回失败。
   // 程序中一般不必关心connect方法的返回值。
   // 注意，每个sqlstatement只需要绑定一次，在绑定新的connection前，必须先调用disconnect方法。
-  int connect(connection *conn); 
+  int connect(connection *conn);
 
   // 取消与数据库连接的绑定。
   // 返回值：0-成功，其它失败，程序中一般不必关心返回值。
@@ -195,7 +195,7 @@ public:
   // 如果成功的执行了非查询语句，在m_cda.rpc中保存了本次执行SQL影响记录的行数。
   // 程序中必须检查execute方法的返回值。
   int execute();
-  
+
   // 执行SQL语句。
   // 如果SQL语句不需要绑定输入和输出变量（无绑定变量、非查询语句），可以直接用此方法执行。
   // 参数说明：这是一个可变参数，用法与printf函数相同。
@@ -232,5 +232,5 @@ public:
   int lobtofile(char *filename);
 };
 
-#endif 
+#endif
 

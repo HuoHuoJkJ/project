@@ -109,7 +109,7 @@ class sqlstatement
 {
 private:
   MYSQL_STMT *m_handle; // SQL语句句柄。
-  
+
   MYSQL_BIND params_in[MAXPARAMS];            // 输入参数。
   unsigned long params_in_length[MAXPARAMS];  // 输入参数的实际长度。
   my_bool params_in_is_null[MAXPARAMS];       // 输入参数是否为空。
@@ -118,7 +118,7 @@ private:
   MYSQL_BIND params_out[MAXPARAMS]; // 输出参数。
 
   CDA_DEF m_cda1;      // prepare() SQL语句的结果。
-  
+
   connection *m_conn;  // 数据库连接指针。
   int m_sqltype;       // SQL语句的类型，0-查询语句；1-非查询语句。
   int m_autocommitopt; // 自动提交标志，0-关闭；1-开启。

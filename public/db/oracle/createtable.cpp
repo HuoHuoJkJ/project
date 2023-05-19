@@ -10,11 +10,11 @@ int main(int argc,char *argv[])
 
   // 登录数据库，返回值：0-成功，其它-失败。
   // 失败代码在conn.m_cda.rc中，失败描述在conn.m_cda.message中。
-  if (conn.connecttodb("scott/tiger@snorcl11g_132","Simplified Chinese_China.AL32UTF8")!=0)
+  if (conn.connecttodb("scott/dyting9525@snorcl11g_43","Simplified Chinese_China.AL32UTF8")!=0)
   {
     printf("connect database failed.\n%s\n",conn.m_cda.message); return -1;
   }
-  
+
   sqlstatement stmt(&conn); // 操作SQL语句的对象。
 
   // 准备创建表的SQL语句。
