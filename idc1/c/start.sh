@@ -104,3 +104,12 @@
 /project/tools1/bin/procctl 300 /project/tools1/bin/deletefiles /idcdata/xmltodb/vip2   "*" 0.04
 /project/tools1/bin/procctl 300 /project/tools1/bin/deletefiles /idcdata/xmltodb/vip2bak "*" 0.04
 /project/tools1/bin/procctl 300 /project/tools1/bin/deletefiles /idcdata/xmltodb/vip2err "*" 0.04
+
+# 把 /idcdata/xmltodb/vip2 目录中的xml文件入库到 Oracle 的 T_ZHOBTMIND1 和 T_ZHOBTCODE1 (由idc1/ini/xmltodb.xml决定) 当中
+/project/tools1/bin/procctl 10 /project/tools1/bin/xmltodb_oracle /log/idc/xmltodb_oracle_vip2.log "<connstr>qxidc/dyting9525@snorcl11g_43</connstr><charaset>Simplified Chinese_China.AL32UTF8</charaset><inifilename>/project/tools/ini/xmltodb.xml</inifilename><xmlpath>/idcdata/xmltodb/vip2</xmlpath><xmlpathbak>/idcdata/xmltodb/vip2bak</xmlpathbak><xmlpatherr>/idcdata/xmltodb/vip2err</xmlpatherr><timetvl>5</timetvl><timeout>50</timeout><pname>xmltodb_oracle_vip2</pname>"
+
+# 把 T_ZHOBTMIND1 表中0.03天前的数据迁移到 T_ZHOBTMIND_HIS 表中
+/project/tools1/bin/procctl 3600 /project/tools1/bin/migratetabledata_oracle /log/idc/migratetabledata_oracle_T_ZHOBTMIND.log "<connectstr>qxidc/dyting9525@snorcl11g_43</connectstr><srctname>T_ZHOBTMIND1</srctname><dsttname>T_ZHOBTMIND_HIS</dsttname><keycol>keyid</keycol><where>where ddatetime<sysdate-0.03</where><maxcount>300</maxcount><timeout>120</timeout><pname>migratetabledata_oracle_ZHOBTMIND1</pname>"
+
+# 清理 T_ZHOBTMIND_HIS 表中前0.06天的数据
+/project/tools1/bin/procctl 3600 /project/tools1/bin/deletetabledata_oracle /log/idc/deletetabledata_oracle_T_ZHOBTMIND1.log "<connectstr>qxidc/dyting9525@snorcl11g_43</connectstr><tname>T_ZHOBTMIND1</tname><keycol>keyid</keycol><where>where ddatetime<sysdate-0.06</where><timeout>120</timeout><pname>deletetabledata_oracle_ZHOBTMIND1</pname>"

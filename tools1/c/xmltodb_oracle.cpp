@@ -99,7 +99,7 @@ void _help()
 	printf("本程序是通用的功能模块，用于把xml文件入库到Oracle的表中。\n");
 	printf("logfilename 是本程序的运行日志文件。\n");
 	printf("xmlbuffer   抽取数据源数据，生成xml文件所需参数：\n");
-	printf("  connstr         数据库的连接参数，格式：ip,username,password,dbname,port\n");
+	printf("  connstr         数据库的连接参数\n");
 	printf("  charaset        数据库的字符集，这个参数要与数据源数据库保持一致，否则会出现中文乱码的情况\n");
 	printf("  inifilename     数据入库的参数配置文件\n");
 	printf("  xmlpath         待入库xml文件存放的目录\n");
@@ -185,7 +185,7 @@ bool _XmlToDB_oracle()
 				// 连接数据库
 				if (conn.connecttodb(starg.connstr, starg.charaset) != 0)
 				{ logfile.Write("数据库连接失败\n"); return false; }
-				logfile.Write("连接数据库%s成功\n", starg.connstr);
+				// logfile.Write("连接数据库%s成功\n", starg.connstr);
 			}
 
 			// 处理xml内容
@@ -262,7 +262,7 @@ bool _loadXmlToTable()
 	}
 
 	// 写入日志
-	logfile.Write("加载xml配置文件(%s)内容到容器vstxmltotable成功\n", starg.inifilename);
+	// logfile.Write("加载xml配置文件(%s)内容到容器vstxmltotable成功\n", starg.inifilename);
 
 	return true;
 }

@@ -31,7 +31,7 @@ ORACPP = /project/public/db/oracle/_ooci.cpp
 # 编译参数
 CFLAGS = -g
 
-all: procctl checkproc gzipfiles deletefiles ftpgetfiles ftpputfiles tcpputfiles fileserver execsql dminingmysql xmltodb syncupdate syncincrement syncincrementex deletetabledata migratetabledata xmltodb_oracle
+all: procctl checkproc gzipfiles deletefiles ftpgetfiles ftpputfiles tcpputfiles fileserver execsql dminingmysql xmltodb syncupdate syncincrement syncincrementex deletetabledata migratetabledata xmltodb_oracle deletetabledata_oracle migratetabledata_oracle
 
 procctl:procctl.cpp
 	g++ -o procctl procctl.cpp
@@ -93,13 +93,21 @@ syncincrementex:syncincrementex.cpp _tools.h _tools.cpp
 	g++ $(CFLAGS) -o syncincrementex syncincrementex.cpp _tools.cpp $(PUBINCL) $(PUBCPP) $(MYSQLINCL) $(MYSQLCPP) $(MYSQLLIB) $(MYSQLLIBS) -lm -lc
 	cp syncincrementex ../bin/.
 
-deletetabledata:deletetabledata.cpp _tools.h _tools.cpp
-	g++ $(CFLAGS) -o deletetabledata deletetabledata.cpp _tools.cpp $(PUBINCL) $(PUBCPP) $(MYSQLINCL) $(MYSQLCPP) $(MYSQLLIB) $(MYSQLLIBS) -lm -lc
+deletetabledata:deletetabledata.cpp
+	g++ $(CFLAGS) -o deletetabledata deletetabledata.cpp $(PUBINCL) $(PUBCPP) $(MYSQLINCL) $(MYSQLCPP) $(MYSQLLIB) $(MYSQLLIBS) -lm -lc
 	cp deletetabledata ../bin/.
+
+deletetabledata_oracle:deletetabledata_oracle.cpp
+	g++ $(CFLAGS) -o deletetabledata_oracle deletetabledata_oracle.cpp $(PUBINCL) $(PUBCPP) $(ORAINCL) $(ORACPP) $(ORALIB) $(ORALIBS) -lm -lc
+	cp deletetabledata_oracle ../bin/.
 
 migratetabledata:migratetabledata.cpp _tools.h _tools.cpp
 	g++ $(CFLAGS) -o migratetabledata migratetabledata.cpp _tools.cpp $(PUBINCL) $(PUBCPP) $(MYSQLINCL) $(MYSQLCPP) $(MYSQLLIB) $(MYSQLLIBS) -lm -lc
 	cp migratetabledata ../bin/.
 
+migratetabledata_oracle:migratetabledata_oracle.cpp _tools_oracle.h _tools_oracle.cpp
+	g++ $(CFLAGS) -o migratetabledata_oracle migratetabledata_oracle.cpp _tools_oracle.cpp $(PUBINCL) $(PUBCPP) $(ORAINCL) $(ORACPP) $(ORALIB) $(ORALIBS) -lm -lc
+	cp migratetabledata_oracle ../bin/.
+
 clean:
-	rm -f procctl checkproc gzipfiles deletefiles ftpgetfiles ftpputfiles tcpputfiles fileserver execsql dminingmysql xmltodb syncupdate syncincrement syncincrementex deletetabledata migratetabledata xmltodb_oracle
+	rm -f procctl checkproc gzipfiles deletefiles ftpgetfiles ftpputfiles tcpputfiles fileserver execsql dminingmysql xmltodb syncupdate syncincrement syncincrementex deletetabledata migratetabledata xmltodb_oracle deletetabledata_oracle migratetabledata_oracle
