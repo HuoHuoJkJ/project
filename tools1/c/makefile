@@ -31,7 +31,7 @@ ORACPP = /project/public/db/oracle/_ooci.cpp
 # 编译参数
 CFLAGS = -g
 
-all: procctl checkproc gzipfiles deletefiles ftpgetfiles ftpputfiles tcpputfiles fileserver execsql dminingmysql xmltodb syncupdate syncincrement syncincrementex deletetabledata migratetabledata xmltodb_oracle deletetabledata_oracle migratetabledata_oracle
+all: procctl checkproc gzipfiles deletefiles ftpgetfiles ftpputfiles tcpputfiles fileserver execsql dminingmysql xmltodb syncupdate syncincrement syncincrementex deletetabledata migratetabledata xmltodb_oracle deletetabledata_oracle migratetabledata_oracle dminingoracle syncupdate_oracle syncincrement_oracle syncincrementex_oracle
 
 procctl:procctl.cpp
 	g++ -o procctl procctl.cpp
@@ -73,6 +73,10 @@ dminingmysql:dminingmysql.cpp
 	g++ $(CFLAGS) -o dminingmysql dminingmysql.cpp $(PUBINCL) $(PUBCPP) $(MYSQLINCL) $(MYSQLCPP) $(MYSQLLIB) $(MYSQLLIBS) -lm -lc
 	cp dminingmysql ../bin/.
 
+dminingoracle:dminingoracle.cpp
+	g++ $(CFLAGS) -o dminingoracle dminingoracle.cpp $(PUBINCL) $(PUBCPP) $(ORAINCL) $(ORACPP) $(ORALIB) $(ORALIBS) -lm -lc
+	cp dminingoracle ../bin/.
+
 xmltodb:xmltodb.cpp _tools.h _tools.cpp
 	g++ $(CFLAGS) -o xmltodb xmltodb.cpp _tools.cpp $(PUBINCL) $(PUBCPP) $(MYSQLINCL) $(MYSQLCPP) $(MYSQLLIB) $(MYSQLLIBS) -lm -lc
 	cp xmltodb ../bin/.
@@ -85,13 +89,25 @@ syncupdate:syncupdate.cpp _tools.h _tools.cpp
 	g++ $(CFLAGS) -o syncupdate syncupdate.cpp _tools.cpp $(PUBINCL) $(PUBCPP) $(MYSQLINCL) $(MYSQLCPP) $(MYSQLLIB) $(MYSQLLIBS) -lm -lc
 	cp syncupdate ../bin/.
 
+syncupdate_oracle:syncupdate_oracle.cpp _tools_oracle.h _tools_oracle.cpp
+	g++ $(CFLAGS) -o syncupdate_oracle syncupdate_oracle.cpp _tools_oracle.cpp $(PUBINCL) $(PUBCPP) $(ORAINCL) $(ORACPP) $(ORALIB) $(ORALIBS) -lm -lc
+	cp syncupdate_oracle ../bin/.
+
 syncincrement:syncincrement.cpp _tools.h _tools.cpp
 	g++ $(CFLAGS) -o syncincrement syncincrement.cpp _tools.cpp $(PUBINCL) $(PUBCPP) $(MYSQLINCL) $(MYSQLCPP) $(MYSQLLIB) $(MYSQLLIBS) -lm -lc
 	cp syncincrement ../bin/.
 
+syncincrement_oracle:syncincrement_oracle.cpp _tools_oracle.h _tools_oracle.cpp
+	g++ $(CFLAGS) -o syncincrement_oracle syncincrement_oracle.cpp _tools_oracle.cpp $(PUBINCL) $(PUBCPP) $(ORAINCL) $(ORACPP) $(ORALIB) $(ORALIBS) -lm -lc
+	cp syncincrement_oracle ../bin/.
+
 syncincrementex:syncincrementex.cpp _tools.h _tools.cpp
 	g++ $(CFLAGS) -o syncincrementex syncincrementex.cpp _tools.cpp $(PUBINCL) $(PUBCPP) $(MYSQLINCL) $(MYSQLCPP) $(MYSQLLIB) $(MYSQLLIBS) -lm -lc
 	cp syncincrementex ../bin/.
+
+syncincrementex_oracle:syncincrementex_oracle.cpp _tools_oracle.h _tools_oracle.cpp
+	g++ $(CFLAGS) -o syncincrementex_oracle syncincrementex_oracle.cpp _tools_oracle.cpp $(PUBINCL) $(PUBCPP) $(ORAINCL) $(ORACPP) $(ORALIB) $(ORALIBS) -lm -lc
+	cp syncincrementex_oracle ../bin/.
 
 deletetabledata:deletetabledata.cpp
 	g++ $(CFLAGS) -o deletetabledata deletetabledata.cpp $(PUBINCL) $(PUBCPP) $(MYSQLINCL) $(MYSQLCPP) $(MYSQLLIB) $(MYSQLLIBS) -lm -lc
@@ -110,4 +126,4 @@ migratetabledata_oracle:migratetabledata_oracle.cpp _tools_oracle.h _tools_oracl
 	cp migratetabledata_oracle ../bin/.
 
 clean:
-	rm -f procctl checkproc gzipfiles deletefiles ftpgetfiles ftpputfiles tcpputfiles fileserver execsql dminingmysql xmltodb syncupdate syncincrement syncincrementex deletetabledata migratetabledata xmltodb_oracle deletetabledata_oracle migratetabledata_oracle
+	rm -f procctl checkproc gzipfiles deletefiles ftpgetfiles ftpputfiles tcpputfiles fileserver execsql dminingmysql xmltodb syncupdate syncincrement syncincrementex deletetabledata migratetabledata xmltodb_oracle deletetabledata_oracle migratetabledata_oracle dminingoracle syncupdate_oracle syncincrement_oracle syncincrementex_oracle
