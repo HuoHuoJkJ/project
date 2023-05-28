@@ -2,6 +2,7 @@
     "C_Cpp.errorSquiggles": "disabled",
     "editor.cursorStyle": "line",
     "files.associations": {
-        "cstdio": "cpp"
+        "cstdio": "cpp",
+        "limits": "cpp"
     }
 }
