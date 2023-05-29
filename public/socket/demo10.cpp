@@ -19,7 +19,7 @@ CTcpServer TcpServer;  // 创建服务端对象。
 
 void FathEXIT(int sig);  // 父进程退出函数。
 void ChldEXIT(int sig);  // 子进程退出函数。
- 
+
 int main(int argc,char *argv[])
 {
   if (argc!=3)
@@ -51,7 +51,7 @@ int main(int argc,char *argv[])
     logfile.Write("客户端（%s）已连接。\n",TcpServer.GetIP());
 
     if (fork()>0) { TcpServer.CloseClient(); continue; }  // 父进程继续回到Accept()。
-   
+
     // 子进程重新设置退出信号。
     signal(SIGINT,ChldEXIT); signal(SIGTERM,ChldEXIT);
 
@@ -77,7 +77,7 @@ int main(int argc,char *argv[])
 }
 
 // 父进程退出函数。
-void FathEXIT(int sig)  
+void FathEXIT(int sig)
 {
   // 以下代码是为了防止信号处理函数在执行的过程中被信号中断。
   signal(SIGINT,SIG_IGN); signal(SIGTERM,SIG_IGN);
@@ -92,7 +92,7 @@ void FathEXIT(int sig)
 }
 
 // 子进程退出函数。
-void ChldEXIT(int sig)  
+void ChldEXIT(int sig)
 {
   // 以下代码是为了防止信号处理函数在执行的过程中被信号中断。
   signal(SIGINT,SIG_IGN); signal(SIGTERM,SIG_IGN);

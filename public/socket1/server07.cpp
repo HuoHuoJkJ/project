@@ -1,4 +1,4 @@
-/* 
+/*
  * server01.cpp 作为服务端，接受客户端的数据，并向客户端发送数据
  */
 #include "../_public.h"
@@ -9,7 +9,7 @@ CTcpServer  TcpServer;      // 创建服务对象
 bool logstatus = false;
 
 bool _main(char *strrecvbuffer, char *strsendbuffer);   // 业务处理主函数
-bool srv001(char *strrecvbuffer, char *strsendbuffer);              //  
+bool srv001(char *strrecvbuffer, char *strsendbuffer);              //
 bool srv002(char *strrecvbuffer, char *strsendbuffer);
 
 void FathEXIT(int sig);     // 父进程的退出信号
@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
 {
     if (argc != 3)
     { printf("Use:./server01 port logfile\nExample:./server01 5005 /tmp/server01.log\n"); return -1; }
- 
+
     // 关闭标准输入输出和信号，只保留信号2(SIGINT)和信号15(SIGTERM)
     CloseIOAndSignal(true); signal(SIGINT, FathEXIT); signal(SIGTERM, FathEXIT);
 
@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 
     if ( TcpServer.InitServer(atoi(argv[1])) == false )
     { logfile.Write("服务器设置端口失败！\n"); return -1; }
-    
+
     while (true)
     {
         if ( TcpServer.Accept() == false )
@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 }
 
 // 父进程的退出信号
-void FathEXIT(int sig)     
+void FathEXIT(int sig)
 {
     signal(SIGINT, SIG_IGN); signal(SIGTERM, SIG_IGN);
 
@@ -73,7 +73,7 @@ void FathEXIT(int sig)
 
     // 在Linux中，每个进程都有一个PID（Process ID），同时也会被分配到一个进程组ID（PGID）以及一个会话（Session）ID。
     // 一个进程组中包含了一个或多个进程，每个进程组都有一个进程组ID，进程组中的所有进程共享同一个终端（tty）。
-    // 在一个会话中，一个进程组可以有一个或多个。 
+    // 在一个会话中，一个进程组可以有一个或多个。
     // 当使用kill函数发送信号时，如果传入的参数pid为正数，则表示要发送给指定进程ID的进程；
     // 如果pid为0，则表示将信号发送给与调用进程属于同一进程组的所有进程，即向同一进程组中的所有进程发送信号。
     // 因此，这里使用kill(0, 15)可以向同一进程组中的所有子进程发送SIGTERM信号，通知它们退出。
@@ -100,10 +100,10 @@ bool _main(char *strrecvbuffer, char *strsendbuffer)
     // 解析strrecvbuffer，获取服务代码(业务代码)。
     int isrecode = -1;
     GetXMLBuffer(strrecvbuffer, "srvcode", &isrecode);
-    
+
     if ( (isrecode != 1) && (logstatus == false) )
     { sprintf(strsendbuffer, "<retcode>-1</retcode><message>未登录！</message>"); return true; }
-    
+
     // 处理每种业务
     switch(isrecode)
     {
@@ -125,7 +125,7 @@ bool srv001(char *strrecvbuffer, char *strsendbuffer)
     char tel[21], password[31];
     GetXMLBuffer(strrecvbuffer, "tel", tel, 20);
     GetXMLBuffer(strrecvbuffer, "password", password, 30);
-    
+
     if ( strcmp(tel, "18561860345") == 0 && strcmp(password, "123456") == 0 )
     {
         strcpy(strsendbuffer, "<retcode>0</retcode><message>登录成功！</message>");
@@ -142,7 +142,7 @@ bool srv002(char *strrecvbuffer, char *strsendbuffer)
 {
     char cardid[31];
     GetXMLBuffer(strrecvbuffer, "cardid", cardid, 30);
-    
+
     if ( strcmp(cardid, "3123129412312") == 0 )
         strcpy(strsendbuffer, "<retcode>0</retcode><message>查询余额成功</message><ua>100.239</ua>");
     else

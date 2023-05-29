@@ -10,26 +10,27 @@
 int main(int argc, char *argv[])
 {
     if (argc != 3)
-    { printf("Using:./client01 ip port\nExample:./client01 127.0.0.1 5005\n\n"); return -1; }
-    
+    { printf("Using:./client06 ip port\nExample:./client01 127.0.0.1 5000\n\n"); return -1; }
+
     CTcpClient TcpClient;
-    
+
     if ( TcpClient.ConnectToServer(argv[1], atoi(argv[2])) == false )
     { printf("客户端尝试连接服务端(%s)失败！\n", argv[1]); return -1; }
 
     char buffer[1024];
     // 与服务端通信，发送一个报文后等待回复，然后再发下一个报文
-    for (int ii = 0; ii < 5; ii++)
+    for (int ii = 0; ii < 20; ii++)
     {
         SPRINTF(buffer, sizeof(buffer), "这是发送的第%010d个数据，编号为%010d", ii + 1, ii + 1);
         // 向服务端发送请求报文
         if ( TcpClient.Write(buffer) == false ) break;
-        printf("发送:%s\n", buffer);
+        // printf("发送:%s\n", buffer);
 
         memset(buffer, 0, sizeof(buffer));
         if ( TcpClient.Read(buffer) == false ) break;
-        printf("接受%s\n", buffer);
-        sleep(10);
+break;
+        // printf("接受%s\n", buffer);
+        sleep(2);
     }
 
     return 0;

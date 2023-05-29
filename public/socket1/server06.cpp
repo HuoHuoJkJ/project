@@ -1,4 +1,4 @@
-/* 
+/*
  * server.cpp 作为服务端，接受客户端的数据，并向客户端发送数据
  */
 #include "../_public.h"
@@ -12,8 +12,8 @@ void ChldEXIT(int sig);     // 子进程的退出信号
 int main(int argc, char *argv[])
 {
     if (argc != 3)
-    { printf("Use:./server01 port logfile\nExample:./server01 5005 /tmp/server01.log\n"); return -1; }
-    
+    { printf("Use:./server06 port logfile\nExample:./server01 5000 /tmp/server01.log\n"); return -1; }
+
     // 关闭标准输入输出和信号，只保留信号2(SIGINT)和信号15(SIGTERM)
     CloseIOAndSignal(true); signal(SIGINT, FathEXIT); signal(SIGTERM, FathEXIT);
 
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
 }
 
 // 父进程的退出信号
-void FathEXIT(int sig)     
+void FathEXIT(int sig)
 {
     signal(SIGINT, SIG_IGN); signal(SIGTERM, SIG_IGN);
 
@@ -63,7 +63,7 @@ void FathEXIT(int sig)
 
     // 在Linux中，每个进程都有一个PID（Process ID），同时也会被分配到一个进程组ID（PGID）以及一个会话（Session）ID。
     // 一个进程组中包含了一个或多个进程，每个进程组都有一个进程组ID，进程组中的所有进程共享同一个终端（tty）。
-    // 在一个会话中，一个进程组可以有一个或多个。 
+    // 在一个会话中，一个进程组可以有一个或多个。
     // 当使用kill函数发送信号时，如果传入的参数pid为正数，则表示要发送给指定进程ID的进程；
     // 如果pid为0，则表示将信号发送给与调用进程属于同一进程组的所有进程，即向同一进程组中的所有进程发送信号。
     // 因此，这里使用kill(0, 15)可以向同一进程组中的所有子进程发送SIGTERM信号，通知它们退出。
