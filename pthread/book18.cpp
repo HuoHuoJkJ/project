@@ -54,10 +54,10 @@ void incache(int sig)       // 生产者、数据入队。
   pthread_mutex_lock(&mutex);    // 给缓存队列加锁。
 
   //  生产数据，放入缓存队列。
-  stmesg.mesgid=mesgid++; vcache.push_back(stmesg);  
-  stmesg.mesgid=mesgid++; vcache.push_back(stmesg);  
-  stmesg.mesgid=mesgid++; vcache.push_back(stmesg);  
-  stmesg.mesgid=mesgid++; vcache.push_back(stmesg);  
+  stmesg.mesgid=mesgid++; vcache.push_back(stmesg);
+  stmesg.mesgid=mesgid++; vcache.push_back(stmesg);
+  stmesg.mesgid=mesgid++; vcache.push_back(stmesg);
+  stmesg.mesgid=mesgid++; vcache.push_back(stmesg);
 
   pthread_mutex_unlock(&mutex);  // 给缓存队列解锁。
 
