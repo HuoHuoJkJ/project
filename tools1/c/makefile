@@ -31,7 +31,7 @@ ORACPP = /project/public/db/oracle/_ooci.cpp
 # 编译参数
 CFLAGS = -g
 
-all: procctl checkproc gzipfiles deletefiles ftpgetfiles ftpputfiles tcpputfiles fileserver execsql dminingmysql xmltodb syncupdate syncincrement syncincrementex deletetabledata migratetabledata xmltodb_oracle deletetabledata_oracle migratetabledata_oracle dminingoracle syncupdate_oracle syncincrement_oracle syncincrementex_oracle
+all: procctl checkproc gzipfiles deletefiles ftpgetfiles ftpputfiles tcpputfiles fileserver execsql dminingmysql xmltodb syncupdate syncincrement syncincrementex deletetabledata migratetabledata xmltodb_oracle deletetabledata_oracle migratetabledata_oracle dminingoracle syncupdate_oracle syncincrement_oracle syncincrementex_oracle webserver
 
 procctl:procctl.cpp
 	g++ -o procctl procctl.cpp
@@ -125,5 +125,9 @@ migratetabledata_oracle:migratetabledata_oracle.cpp _tools_oracle.h _tools_oracl
 	g++ $(CFLAGS) -o migratetabledata_oracle migratetabledata_oracle.cpp _tools_oracle.cpp $(PUBINCL) $(PUBCPP) $(ORAINCL) $(ORACPP) $(ORALIB) $(ORALIBS) -lm -lc
 	cp migratetabledata_oracle ../bin/.
 
+webserver:webserver.cpp
+	g++ $(CFLAGS) -o webserver webserver.cpp $(PUBINCL) $(PUBCPP) $(ORAINCL) $(ORACPP) $(ORALIB) $(ORALIBS) -lpthread -lm -lc
+	cp webserver ../bin/.
+
 clean:
-	rm -f procctl checkproc gzipfiles deletefiles ftpgetfiles ftpputfiles tcpputfiles fileserver execsql dminingmysql xmltodb syncupdate syncincrement syncincrementex deletetabledata migratetabledata xmltodb_oracle deletetabledata_oracle migratetabledata_oracle dminingoracle syncupdate_oracle syncincrement_oracle syncincrementex_oracle
+	rm -f procctl checkproc gzipfiles deletefiles ftpgetfiles ftpputfiles tcpputfiles fileserver execsql dminingmysql xmltodb syncupdate syncincrement syncincrementex deletetabledata migratetabledata xmltodb_oracle deletetabledata_oracle migratetabledata_oracle dminingoracle syncupdate_oracle syncincrement_oracle syncincrementex_oracle webserver

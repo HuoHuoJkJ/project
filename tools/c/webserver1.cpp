@@ -45,7 +45,7 @@ bool CheckPerm(connection *conn,const char *buffer,const int sockfd);
 
 // 执行接口的sql语句，把数据返回给客户端。
 bool ExecSQL(connection *conn,const char *buffer,const int sockfd);
- 
+
 int main(int argc,char *argv[])
 {
   if (argc!=3) { _help(argv); return -1; }
@@ -123,11 +123,11 @@ void *thmain(void *arg)     // 线程主函数。
   // 判断URL中用户名和密码，如果不正确，返回认证失败的响应报文，线程退出。
   if (Login(&conn,strrecvbuf,connfd)==false) pthread_exit(0);
 
-  // 判断用户是否有调用接口的权限，如果没有，返回没有权限的响应报文，线程退出。 
+  // 判断用户是否有调用接口的权限，如果没有，返回没有权限的响应报文，线程退出。
   if (CheckPerm(&conn,strrecvbuf,connfd)==false) pthread_exit(0);
 
   // 先把响应报文头部发送给客户端。
-  char strsendbuf[1024];          
+  char strsendbuf[1024];
   memset(strsendbuf,0,sizeof(strsendbuf));
   sprintf(strsendbuf,\
          "HTTP/1.1 200 OK\r\n"\
@@ -142,7 +142,7 @@ void *thmain(void *arg)     // 线程主函数。
 }
 
 // 进程的退出函数。
-void EXIT(int sig)  
+void EXIT(int sig)
 {
   // 以下代码是为了防止信号处理函数在执行的过程中被信号中断。
   signal(SIGINT,SIG_IGN); signal(SIGTERM,SIG_IGN);
@@ -298,7 +298,7 @@ bool getvalue(const char *buffer,const char *name,char *value,const int len)
   return true;
 }
 
-// 判断用户是否有调用接口的权限，如果没有，返回没有权限的响应报文。 
+// 判断用户是否有调用接口的权限，如果没有，返回没有权限的响应报文。
 bool CheckPerm(connection *conn,const char *buffer,const int sockfd)
 {
   char username[31],intername[30];
@@ -408,14 +408,14 @@ bool ExecSQL(connection *conn,const char *buffer,const int sockfd)
   if (stmt.execute() != 0)
   {
     sprintf(strsendbuffer,"<retcode>%d</retcode><message>%s</message>\n",stmt.m_cda.rc,stmt.m_cda.message);
-    Writen(sockfd,strsendbuffer,strlen(strsendbuffer)); 
+    Writen(sockfd,strsendbuffer,strlen(strsendbuffer));
     logfile.Write("stmt.execute() failed.\n%s\n%s\n",stmt.m_sql,stmt.m_cda.message); return false;
   }
   strcpy(strsendbuffer,"<retcode>0</retcode><message>ok</message>\n");
-  Writen(sockfd,strsendbuffer,strlen(strsendbuffer)); 
+  Writen(sockfd,strsendbuffer,strlen(strsendbuffer));
 
   // 向客户端发送xml内容的头部标签<data>。
-  Writen(sockfd,"<data>\n",strlen("<data>\n")); 
+  Writen(sockfd,"<data>\n",strlen("<data>\n"));
 
   // 获取结果集，每获取一条记录，拼接xml报文，发送给客户端。
   //////////////////////////////////////////////////
@@ -439,8 +439,8 @@ bool ExecSQL(connection *conn,const char *buffer,const int sockfd)
 
     strcat(strsendbuffer,"<endl/>\n");   // xml每行结束的标志。
 
-    Writen(sockfd,strsendbuffer,strlen(strsendbuffer));   // 向客户端返回这行数据。 
-  }  
+    Writen(sockfd,strsendbuffer,strlen(strsendbuffer));   // 向客户端返回这行数据。
+  }
   //////////////////////////////////////////////////
 
   // 向客户端发送xml内容的尾部标签</data>。

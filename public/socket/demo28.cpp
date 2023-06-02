@@ -4,7 +4,7 @@
 */
 #include "_public.h"
 #include "_ooci.h"
- 
+
 // 从GET请求中获取参数的值：strget-GET请求报文的内容；name-参数名；value-参数值；len-参数值的长度。
 bool getvalue(const char *strget,const char *name,char *value,const int len);
 
@@ -69,7 +69,7 @@ bool SendData(const int sockfd,const char *strget)
   // 解析URL中的参数。
   // 权限控制：用户名和密码。
   // 接口名：访问数据的种类。
-  // 查询条件：设计接口的时候决定。 
+  // 查询条件：设计接口的时候决定。
   // http://127.0.0.1:8080/api?wucz&wuczpwd&getZHOBTMIND1&51076&20211024094318&20211024114020
   // http://127.0.0.1:8080/api?username=wucz&passwd=wuczpwd&intetname=getZHOBTMIND1&obtid=51076&begintime=20211024094318&endtime=20211024114020
 
@@ -109,7 +109,7 @@ bool SendData(const int sockfd,const char *strget)
   stmt.bindin(1,obtid,10);
   stmt.bindin(2,begintime,14);
   stmt.bindin(3,endtime,14);
- 
+
   stmt.execute();   // 执行查询数据的SQL。
 
   Writen(sockfd,"<data>\n",strlen("<data>\n"));      // 返回xml的头部标签。
@@ -124,7 +124,7 @@ bool SendData(const int sockfd,const char *strget)
   }
 
   Writen(sockfd,"</data>\n",strlen("</data>\n"));  // 返回xml的尾部标签。
-  
+
   return true;
 }
 

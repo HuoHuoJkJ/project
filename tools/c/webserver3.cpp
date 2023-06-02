@@ -91,7 +91,8 @@ int main(int argc,char *argv[])
   // 关闭全部的信号和输入输出。
   // 设置信号,在shell状态下可用 "kill + 进程号" 正常终止些进程
   // 但请不要用 "kill -9 +进程号" 强行终止
-  CloseIOAndSignal(); signal(SIGINT,EXIT); signal(SIGTERM,EXIT);
+  // CloseIOAndSignal();
+  signal(SIGINT,EXIT); signal(SIGTERM,EXIT);
 
   if (logfile.Open(argv[1],"a+")==false) { printf("logfile.Open(%s) failed.\n",argv[1]); return -1; }
 
@@ -210,7 +211,7 @@ void *thmain(void *arg)     // 线程主函数。
   // 判断URL中用户名和密码，如果不正确，返回认证失败的响应报文，线程退出。
   if (Login(conn,strrecvbuf,connfd)==false) { oraconnpool.free(conn); pthread_exit(0); }
 
-  // 判断用户是否有调用接口的权限，如果没有，返回没有权限的响应报文，线程退出。 
+  // 判断用户是否有调用接口的权限，如果没有，返回没有权限的响应报文，线程退出。
   if (CheckPerm(conn,strrecvbuf,connfd)==false) { oraconnpool.free(conn); pthread_exit(0); }
 
   // 先把响应报文头部发送给客户端。
@@ -230,7 +231,7 @@ void *thmain(void *arg)     // 线程主函数。
 }
 
 // 进程的退出函数。
-void EXIT(int sig)  
+void EXIT(int sig)
 {
   // 以下代码是为了防止信号处理函数在执行的过程中被信号中断。
   signal(SIGINT,SIG_IGN); signal(SIGTERM,SIG_IGN);
@@ -385,7 +386,7 @@ bool getvalue(const char *buffer,const char *name,char *value,const int len)
   return true;
 }
 
-// 判断用户是否有调用接口的权限，如果没有，返回没有权限的响应报文。 
+// 判断用户是否有调用接口的权限，如果没有，返回没有权限的响应报文。
 bool CheckPerm(connection *conn,const char *buffer,const int sockfd)
 {
   char username[31],intername[30];
@@ -495,14 +496,14 @@ bool ExecSQL(connection *conn,const char *buffer,const int sockfd)
   if (stmt.execute() != 0)
   {
     sprintf(strsendbuffer,"<retcode>%d</retcode><message>%s</message>\n",stmt.m_cda.rc,stmt.m_cda.message);
-    Writen(sockfd,strsendbuffer,strlen(strsendbuffer)); 
+    Writen(sockfd,strsendbuffer,strlen(strsendbuffer));
     logfile.Write("stmt.execute() failed.\n%s\n%s\n",stmt.m_sql,stmt.m_cda.message); return false;
   }
   strcpy(strsendbuffer,"<retcode>0</retcode><message>ok</message>\n");
-  Writen(sockfd,strsendbuffer,strlen(strsendbuffer)); 
+  Writen(sockfd,strsendbuffer,strlen(strsendbuffer));
 
   // 向客户端发送xml内容的头部标签<data>。
-  Writen(sockfd,"<data>\n",strlen("<data>\n")); 
+  Writen(sockfd,"<data>\n",strlen("<data>\n"));
 
   // 获取结果集，每获取一条记录，拼接xml报文，发送给客户端。
   //////////////////////////////////////////////////
@@ -526,8 +527,8 @@ bool ExecSQL(connection *conn,const char *buffer,const int sockfd)
 
     strcat(strsendbuffer,"<endl/>\n");   // xml每行结束的标志。
 
-    Writen(sockfd,strsendbuffer,strlen(strsendbuffer));   // 向客户端返回这行数据。 
-  }  
+    Writen(sockfd,strsendbuffer,strlen(strsendbuffer));   // 向客户端返回这行数据。
+  }
   //////////////////////////////////////////////////
 
   // 向客户端发送xml内容的尾部标签</data>。
@@ -550,7 +551,7 @@ connpool::connpool()
 }
 
 // 初始化数据库连接池，初始化锁，如果数据库连接参数有问题，返回false。
-bool connpool::init(const char *connstr,const char *charset,const int maxconns,int timeout)     
+bool connpool::init(const char *connstr,const char *charset,const int maxconns,int timeout)
 {
   // 尝试数据库，验证数据库连接参数是否正确。
   connection conn;
@@ -614,7 +615,7 @@ connection *connpool::get()
     {
       if (m_conns[ii].atime>0)       // 如果数据库连接是已连接的状态。
       {
-        printf("取到连接%d。\n",ii); 
+        printf("取到连接%d。\n",ii);
         m_conns[ii].atime=time(0);   // 把数据库连接的使用时间设置为当前时间。
         return &m_conns[ii].conn;    // 返回数据库连接的地址。
       }
@@ -640,14 +641,14 @@ connection *connpool::get()
     pthread_mutex_unlock(&m_conns[pos].mutex);  // 释放锁。
     return NULL;
   }
-  
+
   m_conns[pos].atime=time(0);      // 把数据库连接的使用时间设置为当前时间。
 
   return &m_conns[pos].conn;
 }
 
-// 归还数据库连接。 
-bool connpool::free(connection *conn) 
+// 归还数据库连接。
+bool connpool::free(connection *conn)
 {
   for (int ii=0;ii<m_maxconns;ii++)
   {
@@ -673,13 +674,13 @@ void connpool::checkpool()
       if (m_conns[ii].atime>0)    // 如果是一个可用的连接。
       {
         // 判断连接是否超时。
-        if ( (time(0)-m_conns[ii].atime)>m_timeout ) 
+        if ( (time(0)-m_conns[ii].atime)>m_timeout )
         {
           printf("连接%d已超时。\n",ii);
           m_conns[ii].conn.disconnect();     // 断开数据库连接。
           m_conns[ii].atime=0;               // 重置数据库连接的使用时间。
         }
-        else  
+        else
         {
           // 如果没有超时，执行一次sql，验证连接是否有效，如果无效，断开它。
           // 如果网络断开了，或者数据库重启了，那么就需要重连数据库，在这里，只需要断开连接就行了，
@@ -695,7 +696,7 @@ void connpool::checkpool()
 
       pthread_mutex_unlock(&m_conns[ii].mutex);   // 释放锁。
     }
-    
+
     // 如果尝试加锁失败，表示数据库连接正在使用中，不必检查。
   }
 }

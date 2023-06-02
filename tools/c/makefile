@@ -36,7 +36,7 @@ all: procctl checkproc gzipfiles deletefiles ftpgetfiles ftpputfiles tcpputfiles
      tcpgetfiles execsql dminingmysql xmltodb syncupdate syncincrement syncincrementex\
      deletetable migratetable xmltodb_oracle deletetable_oracle migratetable_oracle\
      dminingoracle syncupdate_oracle syncincrement_oracle syncincrementex_oracle\
-     webserver inetd rinetd rinetdin 
+     webserver inetd rinetd rinetdin webserver3
 
 procctl:procctl.cpp
 	g++ -o procctl procctl.cpp
@@ -90,11 +90,11 @@ xmltodb_oracle:xmltodb_oracle.cpp _tools_oracle.h _tools_oracle.cpp
 	g++ $(CFLAGS) -o xmltodb_oracle xmltodb_oracle.cpp _tools_oracle.cpp $(PUBINCL) $(PUBCPP) $(ORAINCL) $(ORALIB) $(ORALIBS) $(ORACPP) -lm -lc
 	cp xmltodb_oracle ../bin/.
 
-deletetable_oracle:deletetable_oracle.cpp 
+deletetable_oracle:deletetable_oracle.cpp
 	g++ $(CFLAGS) -o deletetable_oracle deletetable_oracle.cpp $(PUBINCL) $(PUBCPP) $(ORAINCL) $(ORALIB) $(ORALIBS) $(ORACPP) -lm -lc
 	cp deletetable_oracle ../bin/.
 
-dminingoracle:dminingoracle.cpp 
+dminingoracle:dminingoracle.cpp
 	g++ $(CFLAGS) -o dminingoracle dminingoracle.cpp $(PUBINCL) $(PUBCPP) $(ORAINCL) $(ORALIB) $(ORALIBS) $(ORACPP) -lm -lc
 	cp dminingoracle ../bin/.
 
@@ -134,9 +134,13 @@ migratetable:migratetable.cpp _tools.h _tools.cpp
 	g++ $(CFLAGS) -o migratetable migratetable.cpp _tools.cpp $(PUBINCL) $(PUBCPP) $(MYSQLINCL) $(MYSQLLIB) $(MYSQLLIBS) $(MYSQLCPP) -lm -lc
 	cp migratetable ../bin/.
 
-webserver:webserver.cpp 
+webserver:webserver.cpp
 	g++ $(CFLAGS) -o webserver webserver.cpp $(PUBINCL) $(PUBCPP) $(ORAINCL) $(ORALIB) $(ORALIBS) $(ORACPP) -lpthread -lm -lc
 	cp webserver ../bin/.
+
+webserver3:webserver3.cpp
+	g++ $(CFLAGS) -o webserver3 webserver3.cpp $(PUBINCL) $(PUBCPP) $(ORAINCL) $(ORALIB) $(ORALIBS) $(ORACPP) -lpthread -lm -lc
+	cp webserver3 ../bin/.
 
 inetd:inetd.cpp
 	g++ $(CFLAGS) -o inetd inetd.cpp $(PUBINCL) $(PUBCPP) -lm -lc
@@ -155,4 +159,4 @@ clean:
 	rm -f tcpgetfiles execsql dminingmysql xmltodb syncupdate syncincrement syncincrementex
 	rm -f deletetable migratetable xmltodb_oracle deletetable_oracle migratetable_oracle
 	rm -f dminingoracle syncupdate_oracle syncincrement_oracle syncincrementex_oracle
-	rm -f webserver inetd rinetd rinetdin 
+	rm -f webserver inetd rinetd rinetdin webserver3

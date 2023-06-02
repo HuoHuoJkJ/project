@@ -112,7 +112,7 @@
 /project/tools1/bin/procctl 3600 /project/tools1/bin/migratetabledata_oracle /log/idc/migratetabledata_oracle_T_ZHOBTMIND.log "<connectstr>qxidc/dyting9525@snorcl11g_43</connectstr><srctname>T_ZHOBTMIND1</srctname><dsttname>T_ZHOBTMIND_HIS</dsttname><keycol>keyid</keycol><where>where ddatetime<sysdate-0.03</where><maxcount>300</maxcount><timeout>120</timeout><pname>migratetabledata_oracle_ZHOBTMIND1</pname>"
 
 # 清理 T_ZHOBTMIND_HIS 表中前0.06天的数据
-/project/tools1/bin/procctl 3600 /project/tools1/bin/deletetabledata_oracle /log/idc/deletetabledata_oracle_T_ZHOBTMIND1.log "<connectstr>qxidc/dyting9525@snorcl11g_43</connectstr><tname>T_ZHOBTMIND1</tname><keycol>keyid</keycol><where>where ddatetime<sysdate-0.06</where><timeout>120</timeout><pname>deletetabledata_oracle_ZHOBTMIND1</pname>"
+/project/tools1/bin/procctl 3600 /project/tools1/bin/deletetabledata_oracle /log/idc/deletetabledata_oracle_T_ZHOBTMIND_HIS.log "<connectstr>qxidc/dyting9525@snorcl11g_43</connectstr><tname>T_ZHOBTMIND_HIS</tname><keycol>keyid</keycol><where>where ddatetime<sysdate-0.06</where><timeout>120</timeout><pname>deletetabledata_oracle_ZHOBTMIND_HIS</pname>"
 
 # 把T_ZHOBTCODE1@dbsc_qx表中的数据同步到T_ZHOBTCODE2
 /project/tools1/bin/procctl 10 /project/tools1/bin/syncupdate_oracle /log/idc/syncupdate_oracle_ZHOBTCODE2.log "<localconnstr>scott/dyting9525@snorcl11g_43</localconnstr><charset>Simplified Chinese_China.AL32UTF8</charset><lnktname>T_ZHOBTCODE1@dbsc_qx</lnktname><localtname>T_ZHOBTCODE2</localtname><remotecols>obtid,cityname,provname,lat,lon,height,upttime,keyid</remotecols><localcols>obtid,cityname,provname,lat,lon,height,upttime,keyid</localcols><synctype>1</synctype><timeout>50</timeout><pname>syncupdate_oracle_ZHOBTCODE2</pname>"
