@@ -1,9 +1,5 @@
 /*
- * 创建客户端socket
- * 向服务器发起连接请求
- * 与服务器通信，发送一个报文后等待回复，然后再发下一个报文
- * 不断重复上一步，直到全部的数据被发送完
- * 关闭socket，释放资源
+ * 与tcpselect服务端进行测试
  */
 #include <stdio.h>
 #include <string.h>
@@ -13,6 +9,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <time.h>
 
 int main(int argc, char *argv[])
 {
@@ -49,6 +46,14 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    // int bufsize = 0;
+    // socklen_t optlen = sizeof(bufsize);
+    // getsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &bufsize, &optlen);
+    // printf("recv bbufsize=%d\n", bufsize);
+    // getsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, &bufsize, &optlen);
+    // printf("recv bbufsize=%d\n", bufsize);
+    // return 0;
+
     char buffer[1024];
 
     // 第三步：与服务端通信，发送一个报文后等待回复，然后再发下一个报文
@@ -57,24 +62,26 @@ int main(int argc, char *argv[])
         int iret;
         memset(buffer, 0, sizeof(buffer));
         // sprintf(buffer, "这是发送的第%010d个数据，编号为%010d", ii + 1, ii + 1);
-        sprintf(buffer, "%010d", ii + 1, ii + 1);
+        // sprintf(buffer, "%010d", ii + 1, ii + 1);
+        strcpy(buffer, "aaaaaaaaaaaaaaaaaaaaaa");
+        // printf("send your message:");
+        // scanf("%s", buffer);
         // 向服务端发送请求报文
         if ((iret = send(sockfd, buffer, strlen(buffer), 0)) <= 0)
         {
             perror("send");
             break;
         }
-        printf("iret = %d; 发送:%s\n", iret, buffer);
+        // printf("iret = %d; 发送:%s\n", iret, buffer);
         memset(buffer, 0, sizeof(buffer));
 
         // 接收服务端的回应报文
-        // if ((iret = recv(sockfd, buffer, sizeof(buffer), 0)) <= 0)
-        // {
-        //     printf("iret=%d\n", iret);
-        //     break;
-        // }
-        // printf("接收:%s\n", buffer);
-
+        if ((iret = recv(sockfd, buffer, sizeof(buffer), 0)) <= 0)
+        {
+            printf("iret=%d\n", iret);
+            break;
+        }
+        // printf("recv:%s\n", buffer);
     }
 
     // 第四步：关闭socket，释放资源

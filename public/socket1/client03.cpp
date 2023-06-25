@@ -10,6 +10,9 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <netdb.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <poll.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -42,17 +45,18 @@ int main(int argc, char *argv[])
     servaddr.sin_port = htons(atoi(argv[2])); // 指定服务端的通信端口
     memcpy(&servaddr.sin_addr, h->h_addr, h->h_length);
     // 向服务端发起连接请求
+fcntl(sockfd, F_SETFL, O_NONBLOCK);
     if (connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) != 0)
     {
-        perror("connect");
-        close(sockfd);
-        return -1;
+        // printf("errno=%d\n", errno);
+        if (errno != EINPROGRESS)
+        { perror("connect"); close(sockfd); return -1; }
     }
 
     char buffer[1024];
 
     // 第三步：与服务端通信，发送一个报文后等待回复，然后再发下一个报文
-    for (int ii = 0; ii < 5000; ii++)
+    for (int ii = 0; ii < 10; ii++)
     {
         int iret;
         memset(buffer, 0, sizeof(buffer));
@@ -65,15 +69,20 @@ int main(int argc, char *argv[])
         }
         printf("发送:%s\n", buffer);
         memset(buffer, 0, sizeof(buffer));
+
+        struct pollfd fds;
+        fds.fd = sockfd;
+        fds.events = POLLIN;
+        poll(&fds, 1, -1);
+
         // 接收服务端的回应报文
-/* 
         if ((iret = recv(sockfd, buffer, sizeof(buffer), 0)) <= 0)
         {
             printf("iret=%d\n", iret);
             break;
         }
         printf("接收:%s\n", buffer);
- */
+        sleep(1);
     }
 
     // 第四步：关闭socket，释放资源

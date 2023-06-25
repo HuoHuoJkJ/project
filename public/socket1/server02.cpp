@@ -1,4 +1,4 @@
-/* 
+/*
  * demo02.cpp 作为服务端，接受客户端的数据，并向客户端发送数据
  * socket
  * sockaddr_in
@@ -64,28 +64,29 @@ int main(int argc, char *argv[])
 */
     int iret;
     char buffer[59];
-    
+
     while (1)
     {
         memset(buffer, 0, sizeof(buffer));
-        if ( (iret = recv(clienfd, buffer, sizeof(buffer), 0)) <= 0 )
+        if ( (iret = recv(clienfd, buffer, 10, 0)) <= 0 )
         {
             printf("iret = %d\n", iret);
             break;
         }
-        printf("iret=%d,接受：%s\n", iret, buffer);
+        // printf("iret=%d,接受：%s\n", iret, buffer);
+        printf("iret = %d; %s\n", iret, buffer);
 
-        usleep(10000);
- 
-        strcpy(buffer, "ok");
-        if ( (iret = send(clienfd, buffer, strlen(buffer), 0)) <= 0 )
-        {
-            perror("send");
-            break;
-        }
-        printf("发送：%s\n", buffer);
+        usleep(100);
+
+        // strcpy(buffer, "ok");
+        // if ( (iret = send(clienfd, buffer, strlen(buffer), 0)) <= 0 )
+        // {
+        //     perror("send");
+        //     break;
+        // }
+        // printf("发送：%s\n", buffer);
     }
-    
+
     close(listenfd);
     close(clienfd);
     return 0;
