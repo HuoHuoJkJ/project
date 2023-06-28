@@ -1923,12 +1923,12 @@ CTcpServer::~CTcpServer()
   CloseListen(); CloseClient();
 }
 
-// 接收socket的对端发送过来的数据。
-// sockfd：可用的socket连接。
-// buffer：接收数据缓冲区的地址。
-// ibuflen：本次成功接收数据的字节数。
-// itimeout：接收等待超时的时间，单位：秒，-1-不等待；0-无限等待；>0-等待的秒数。
-// 返回值：true-成功；false-失败，失败有两种情况：1）等待超时；2）socket连接已不可用。
+/// @brief 接收socket的对端发送过来的数据。
+/// @param sockfd 可用的socket连接。
+/// @param buffer 接收数据缓冲区的地址。
+/// @param ibuflen 本次成功接收数据的字节数。
+/// @param itimeout 接收等待超时的时间，单位：秒，-1-不等待；0-无限等待；>0-等待的秒数。
+/// @return true-成功；false-失败，失败有两种情况：1）等待超时；2）socket连接已不可用。
 bool TcpRead(const int sockfd,char *buffer,int *ibuflen,const int itimeout)
 {
   if (sockfd==-1) return false;
@@ -1964,12 +1964,11 @@ bool TcpRead(const int sockfd,char *buffer,int *ibuflen,const int itimeout)
   return true;
 }
 
-// 向socket的对端发送数据。
-// sockfd：可用的socket连接。
-// buffer：待发送数据缓冲区的地址。
-// ibuflen：待发送数据的字节数，如果发送的是ascii字符串，ibuflen填0或字符串的长度，
-//          如果是二进制流数据，ibuflen为二进制数据块的大小。
-// 返回值：true-成功；false-失败，如果失败，表示socket连接已不可用。
+/// @brief 向socket的对端发送数据。
+/// @param sockfd 可用的socket连接。
+/// @param buffer 待发送数据缓冲区的地址。
+/// @param ibuflen 待发送数据的字节数，如果发送的是ascii字符串，ibuflen填0或字符串的长度，如果是二进制流数据，ibuflen为二进制数据块的大小。
+/// @return true-成功；false-失败，如果失败，表示socket连接已不可用。
 bool TcpWrite(const int sockfd,const char *buffer,const int ibuflen)
 {
   if (sockfd==-1) return false;
@@ -2038,14 +2037,22 @@ bool Writen(const int sockfd,const char *buffer,const size_t n)
 }
 
 
-// 复制文件，类似Linux系统的cp命令。
-// srcfilename：原文件名，建议采用绝对路径的文件名。
-// dstfilename：目标文件名，建议采用绝对路径的文件名。
-// 返回值：true-复制成功；false-复制失败，失败的主要原因是权限不足或磁盘空间不够。
+//
+// srcfilename：
+// dstfilename：
+// 返回值：
 // 注意：
-// 1）在复制文件之前，会自动创建dstfilename参数中的目录名。
-// 2）复制文件的过程中，采用临时文件命名的方法，复制完成后再改名为dstfilename，避免中间状态的文件被读取。
-// 3）复制后的文件的时间与原文件相同，这一点与Linux系统cp命令不同。
+//
+//
+//
+
+/// @brief 复制文件，类似Linux系统的cp命令。
+/// @param srcfilename 原文件名，建议采用绝对路径的文件名。
+/// @param dstfilename 目标文件名，建议采用绝对路径的文件名。
+/// @return true-复制成功；false-复制失败，失败的主要原因是权限不足或磁盘空间不够。
+/// @note 1）在复制文件之前，会自动创建dstfilename参数中的目录名。
+/// @note 2）复制文件的过程中，采用临时文件命名的方法，复制完成后再改名为dstfilename，避免中间状态的文件被读取。
+/// @note 3）复制后的文件的时间与原文件相同，这一点与Linux系统cp命令不同。
 bool COPY(const char *srcfilename,const char *dstfilename)
 {
   if (MKDIR(dstfilename) == false) return false;

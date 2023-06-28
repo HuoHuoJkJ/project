@@ -7,6 +7,8 @@
 #include <unistd.h>
 #include <netdb.h>
 #include <time.h>
+#include <errno.h>
+#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/epoll.h>
@@ -27,6 +29,10 @@ int main(int argc, char *argv[])
         printf("initserver(%s) failed!\n", argv[1]);
     printf("listenfd = %d\n", listenfd);
 
+    // 非标准写法，没有套接字原有的状态保留下来
+// fcntl(listenfd, F_SETFL, O_NONBLOCK);
+fcntl(listenfd, F_SETFL, fcntl(listenfd, F_GETFD, 0)|O_NONBLOCK);
+
     // 创建epoll句柄
     int epollfd = epoll_create(1); // 参数在linux 2.X 已经被忽略了，只需要填大于0的数就行
 
@@ -34,7 +40,7 @@ int main(int argc, char *argv[])
 
     // 为监听的sockfd准备可读事件
     struct epoll_event ev;  // 声明事件的数据结构
-    ev.events = EPOLLIN;    // 读事件
+    ev.events = EPOLLIN|EPOLLET;    // 读事件
     ev.data.fd = listenfd;  // 指定事件的自定义数据，会随着epoll_wait()返回的事件一并返回
 
     // 把监听的sockfd的事件加入到epollfd中
@@ -65,14 +71,23 @@ int main(int argc, char *argv[])
         // 遍历epoll返回的已发生事件的数组
         for (int ii=0; ii<infds; ii++)
         {
-            // printf("data.fd=%d, events=%d\n", evs[ii].data.fd, evs[ii].events);
+            printf("data.fd=%d, events=%d\n", evs[ii].data.fd, evs[ii].events);
 
             if (evs[ii].data.fd == listenfd)
             {
+// static int ss;
+// if (ss++ < 2) continue;
+                // printf("有读事件\n");
                 // 进行accept的操作
+while (true)
+{
                 struct sockaddr_in client;
                 socklen_t len = sizeof(client);
                 int clientfd = accept(listenfd, (struct sockaddr*)&client, &len);
+if (errno == EAGAIN) break;
+// 设置clientfd的send等函数为非阻塞函数
+// fcntl(clientfd, F_SETFL, O_NONBLOCK);
+fcntl(clientfd, F_SETFL, fcntl(clientfd, F_GETFD, 0)|O_NONBLOCK);
                 if (clientfd < 0)
                 {
                     perror("accept");
@@ -82,23 +97,43 @@ int main(int argc, char *argv[])
 
                 // 为新客户端准备可读事件，并添加到epoll中
                 ev.data.fd = clientfd;
-                ev.events = EPOLLIN;
+                ev.events = EPOLLIN|EPOLLET;
                 epoll_ctl(epollfd, EPOLL_CTL_ADD, clientfd, &ev);
+}
             }
             else
             {
+                // printf("有可写事件\n");
+                // for (int oo = 0; oo < 10000; oo ++)
+                // {
+                //     send(evs[ii].data.fd, "aaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbb", 40, 0);
+                // }
+                // printf("写完\n");
+                // printf("客户端有报文发送过来\n");
                 // 如果是客户端连接的sockfd事件，表示有报文发过来 或者 是连接已断开
                 char buffer[1024];
                 memset(buffer, 0, sizeof(buffer));
-                if (recv(evs[ii].data.fd, buffer, sizeof(buffer), 0) <= 0)
+int iret = 0;
+char *ptr = buffer;
+while (true) // 边缘触发，非阻塞io，使用循环将缓冲区的内容全部读取出来
+{
+                if ((iret = recv(evs[ii].data.fd, ptr, 10, 0)) <= 0)
                 {
+                    if (errno == EAGAIN) break;
                     printf("%ld client(eventfd=%d) disconnected.\n", time(0), evs[ii].data.fd);
                     close(evs[ii].data.fd);
                 }
-                else
+    printf("iret=%d\n", iret);
+    ptr = ptr + iret;
+}
+                if (strlen(buffer) > 0)
                 {
-                    // printf("recv(fd=%d):%s\n", evs[ii].data.fd, buffer);
-                    send(evs[ii].data.fd, buffer, strlen(buffer), 0);
+                    printf("recv(fd=%d):%s\n", evs[ii].data.fd, buffer);
+while (true)
+{
+    if (errno == EAGAIN) break;
+                    send(evs[ii].data.fd, buffer, 10, 0);
+}
                 }
             }
         }

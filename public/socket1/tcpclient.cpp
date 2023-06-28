@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    // int bufsize = 0;
+
     // socklen_t optlen = sizeof(bufsize);
     // getsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &bufsize, &optlen);
     // printf("recv bbufsize=%d\n", bufsize);
@@ -61,18 +61,18 @@ int main(int argc, char *argv[])
     {
         int iret;
         memset(buffer, 0, sizeof(buffer));
-        // sprintf(buffer, "这是发送的第%010d个数据，编号为%010d", ii + 1, ii + 1);
+        sprintf(buffer, "这是发送的第%010d个数据，编号为%010d", ii + 1, ii + 1);
         // sprintf(buffer, "%010d", ii + 1, ii + 1);
-        strcpy(buffer, "aaaaaaaaaaaaaaaaaaaaaa");
-        // printf("send your message:");
-        // scanf("%s", buffer);
+        // strcpy(buffer, "aaaaaaaaaaaaaaaaaaaaaa");
+        printf("send message:");
+        scanf("%s", buffer);
         // 向服务端发送请求报文
         if ((iret = send(sockfd, buffer, strlen(buffer), 0)) <= 0)
         {
             perror("send");
             break;
         }
-        // printf("iret = %d; 发送:%s\n", iret, buffer);
+        printf("iret = %d; 发送:%s\n", iret, buffer);
         memset(buffer, 0, sizeof(buffer));
 
         // 接收服务端的回应报文
@@ -81,7 +81,8 @@ int main(int argc, char *argv[])
             printf("iret=%d\n", iret);
             break;
         }
-        // printf("recv:%s\n", buffer);
+        // usleep(1000);
+        printf("recv:%s\n", buffer);
     }
 
     // 第四步：关闭socket，释放资源

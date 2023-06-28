@@ -1,4 +1,4 @@
-/* 
+/*
  * 本程序是数据中心的公共功能模块，用于从mysql数据入库的操作
  */
 #include "_public.h"
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
     // 解析xml字符串，获得参数
     if ( _XmlToArg(argv[2]) == false )
     { logfile.Write("解析xml失败！\n"); return -1; }
-    
+
     // 增加进程的心跳
     // PActive.AddPInfo(starg.timeout, starg.pname);
     PActive.AddPInfo(5000, starg.pname);
@@ -128,14 +128,14 @@ bool _XmlToArg(char *strxmlbuffer)
     GetXMLBuffer(strxmlbuffer, "pname", starg.pname, 50);           // 进程名
     if (strlen(starg.pname) == 0)
     { logfile.Write("pname值为空！\n"); return false; }
-    
+
     CCmdStr CmdStr;
 
     // 把starg.fieldlen解析到ifieldlen数组中
     CmdStr.SplitToCmd(starg.fieldlen, ",");
     if ((ifieldcount = CmdStr.CmdCount()) > MAXFIELDCOUNT)
     { logfile.Write("fieldlen的字段数太多，超出了最大限制%d\n", MAXFIELDCOUNT); return false; }
-    
+
     for (int ii = 0; ii < ifieldcount; ii++)
     {
         CmdStr.GetValue(ii, &ifieldlen[ii]);
@@ -163,7 +163,7 @@ bool _XmlToArg(char *strxmlbuffer)
             if (strcmp(strfieldname[ii], starg.incfield) == 0) { incfieldpos = ii; break; }
         if (incfieldpos == -1)
         { logfile.Write("递增字段%s不在列表%s中\n", starg.incfield, starg.fieldstr); return false; }
-        
+
         // 如果自增字段存在，我们需要判断文件或者数据库表连接字符串是否为空
         if ((strlen(starg.incfieldname)==0) && (strlen(starg.connstr1)==0))
         { logfile.Write("自增字段存放的文件路径%s 和 自增字段存放的数据库表连接字符串%s均为空\n"); return false; }
@@ -215,7 +215,7 @@ bool _dminingmysql()
     while (true)
     {
         memset(strfieldvalue, 0, sizeof(strfieldvalue));
-        
+
         // 从结果集(缓冲区)中取出数据 从结果集中获取一条记录。
         if (stmt.next() != 0) break;
 
@@ -258,7 +258,7 @@ bool _dminingmysql()
         else
             logfile.Write("生成文件%s(%d行)成功\n", xmlfilename, stmt.m_cda.rpc%starg.maxcount);
     }
-    
+
     // 将keyid的值写入incfieldname文件中，如果结果集为空，肯定不需要更新keyid
     if (stmt.m_cda.rpc > 0) _WriteIncfield();
 
@@ -289,7 +289,7 @@ bool _ReadIncfield()
         CFile File;
         // 打开失败的原因：可能是第一次打开，可能该文件被清理掉了
         if (File.Open(starg.incfieldname, "r") == false) return true;
-        
+
         char strtemp[31]; memset(strtemp, 0, sizeof(strtemp));
         // 读取内容
         File.Fgets(strtemp, 30);
@@ -310,7 +310,7 @@ void _CreatXMLName()
     char strlocaltime[21];      memset(strlocaltime, 0, sizeof(strlocaltime));
     LocalTime(strlocaltime, "yyyymmddhh24miss");
     static int iseq = 1;    // 设置静态变量，防止同一秒内将本应分割的数据写入同一文件中
-    
+
     SNPRINTF(xmlfilename, 300, sizeof(xmlfilename), "%s/%s_%s_%s_%d.xml", starg.outpath, starg.bfilename, strlocaltime, starg.efilename, iseq++);
 }
 

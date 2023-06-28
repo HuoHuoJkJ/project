@@ -38,7 +38,7 @@ int main(int argc,char *argv[])
 
     fd_set tmpfds=readfds;
     struct timeval timeout;    timeout.tv_sec=10; timeout.tv_usec=0;
-    int infds=select(maxfd+1,&tmpfds,NULL,NULL,&timeout); 
+    int infds=select(maxfd+1,&tmpfds,NULL,NULL,&timeout);
 
     // 返回失败。
     if (infds < 0)
@@ -83,7 +83,7 @@ int main(int argc,char *argv[])
           printf("client(eventfd=%d) disconnected.\n",eventfd);
           close(eventfd);            // 关闭客户端的socket
           FD_CLR(eventfd,&readfds);  // 把已关闭客户端的socket从可读socket的集合中删除。
-          
+
           // 重新计算maxfd的值，注意，只有当eventfd==maxfd时才需要计算。
           if (eventfd == maxfd)
           {

@@ -88,6 +88,7 @@ void *outcache(void *arg)
         // 解锁互斥锁
         pthread_mutex_unlock(&mutex);
 
+        // 业务代码
         printf("thid = %lu, mesgid = %d\n", pthread_self(), stargs.mesgid);
         usleep(100);
     }

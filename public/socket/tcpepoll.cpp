@@ -61,7 +61,7 @@ int main(int argc,char *argv[])
     for (int ii=0;ii<infds;ii++)
     {
       printf("events=%d,data.fd=%d\n",evs[ii].events,evs[ii].data.fd);
-
+/*
       // 如果发生事件的是listensock，表示有新的客户端连上来。
       if (evs[ii].data.fd==listensock)
       {
@@ -95,7 +95,7 @@ int main(int argc,char *argv[])
           send(evs[ii].data.fd,buffer,strlen(buffer),0);
         }
       }
-    }
+    */ }
   }
 
   return 0;
